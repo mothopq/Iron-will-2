@@ -1,0 +1,552 @@
+/* main.css - Design System, Tokens, Layout Base e Motor de Temas */
+
+/* ============================================================ */
+/* TEMA PADRÃO: RUBRO-NEGRO BRUTAL (PRETO COM VERMELHO SANGUE)  */
+/* ============================================================ */
+:root,
+[data-theme="crimson-noir"] {
+  --theme-id: "crimson-noir";
+  --theme-name: "Rubro-Negro Brutal";
+  
+  --bg-dark: #07080b;
+  --bg-card: #11141c;
+  --bg-card-hover: #191e2b;
+  --bg-accent: #202636;
+  
+  --primary: #e63946;
+  --primary-glow: rgba(230, 57, 70, 0.45);
+  --primary-glow-subtle: rgba(230, 57, 70, 0.12);
+  --primary-dark: #991b1b;
+  --primary-light: #ff4d5a;
+  
+  --gold: #ffd166;
+  --gold-glow: rgba(255, 209, 102, 0.4);
+  --blue-neon: #00b4d8;
+  --green-neon: #10b981;
+  
+  --text-main: #f8fafc;
+  --text-muted: #94a3b8;
+  --text-dim: #64748b;
+  
+  --border-subtle: rgba(230, 57, 70, 0.18);
+  --border-active: rgba(230, 57, 70, 0.85);
+  --border-gold: rgba(255, 209, 102, 0.5);
+
+  --font-display: 'Impact', 'Arial Black', sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.7);
+  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(230, 57, 70, 0.22) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(230, 57, 70, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #07080b 0%, #030406 100%);
+}
+
+/* TEMA: GOLD & NOIR (CAMPEÃO INDISCUTÍVEL) */
+[data-theme="gold-noir"] {
+  --theme-id: "gold-noir";
+  --theme-name: "Ouro & Preto Campeão";
+  --bg-dark: #09090b;
+  --bg-card: #141417;
+  --bg-card-hover: #202026;
+  --bg-accent: #2c2a24;
+  --primary: #f59e0b;
+  --primary-glow: rgba(245, 158, 11, 0.45);
+  --primary-glow-subtle: rgba(245, 158, 11, 0.12);
+  --primary-dark: #b45309;
+  --primary-light: #fbbf24;
+  --border-subtle: rgba(245, 158, 11, 0.20);
+  --border-active: rgba(245, 158, 11, 0.85);
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(245, 158, 11, 0.22) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(245, 158, 11, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #09090b 0%, #040405 100%);
+}
+
+/* TEMA: CYBER NEON (TOKYO UNDERGROUND) */
+[data-theme="cyber-neon"] {
+  --theme-id: "cyber-neon";
+  --theme-name: "Cyberpunk Neon";
+  --bg-dark: #060810;
+  --bg-card: #0d121f;
+  --bg-card-hover: #141d30;
+  --bg-accent: #1c2842;
+  --primary: #00f0ff;
+  --primary-glow: rgba(0, 240, 255, 0.45);
+  --primary-glow-subtle: rgba(0, 240, 255, 0.12);
+  --primary-dark: #0284c7;
+  --primary-light: #38bdf8;
+  --border-subtle: rgba(0, 240, 255, 0.18);
+  --border-active: rgba(0, 240, 255, 0.85);
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(0, 240, 255, 0.20) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(0, 240, 255, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #060810 0%, #020306 100%);
+}
+
+/* TEMA: VENOM GREEN (ESMERALDA TÓXICO) */
+[data-theme="venom-green"] {
+  --theme-id: "venom-green";
+  --theme-name: "Venom Esmeralda";
+  --bg-dark: #050906;
+  --bg-card: #0d1710;
+  --bg-card-hover: #142419;
+  --bg-accent: #1b3022;
+  --primary: #10b981;
+  --primary-glow: rgba(16, 185, 129, 0.45);
+  --primary-glow-subtle: rgba(16, 185, 129, 0.12);
+  --primary-dark: #047857;
+  --primary-light: #34d399;
+  --border-subtle: rgba(16, 185, 129, 0.18);
+  --border-active: rgba(16, 185, 129, 0.85);
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(16, 185, 129, 0.20) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #050906 0%, #020402 100%);
+}
+
+/* TEMA: ROYAL PURPLE (AMETISTA / MEIA-NOITE) */
+[data-theme="royal-purple"] {
+  --theme-id: "royal-purple";
+  --theme-name: "Púrpura Real";
+  --bg-dark: #08060f;
+  --bg-card: #130e22;
+  --bg-card-hover: #1c1532;
+  --bg-accent: #271d44;
+  --primary: #a855f7;
+  --primary-glow: rgba(168, 85, 247, 0.45);
+  --primary-glow-subtle: rgba(168, 85, 247, 0.12);
+  --primary-dark: #7e22ce;
+  --primary-light: #c084fc;
+  --border-subtle: rgba(168, 85, 247, 0.18);
+  --border-active: rgba(168, 85, 247, 0.85);
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(168, 85, 247, 0.22) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(168, 85, 247, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #08060f 0%, #030206 100%);
+}
+
+/* TEMA: EMBER ORANGE (BRASA FORGE) */
+[data-theme="ember-orange"] {
+  --theme-id: "ember-orange";
+  --theme-name: "Laranja Brasa";
+  --bg-dark: #0a0705;
+  --bg-card: #17100b;
+  --bg-card-hover: #241911;
+  --bg-accent: #332218;
+  --primary: #f97316;
+  --primary-glow: rgba(249, 115, 22, 0.45);
+  --primary-glow-subtle: rgba(249, 115, 22, 0.12);
+  --primary-dark: #c2410c;
+  --primary-light: #fb923c;
+  --border-subtle: rgba(249, 115, 22, 0.18);
+  --border-active: rgba(249, 115, 22, 0.85);
+  --bg-gradient: radial-gradient(circle at 50% -10%, rgba(249, 115, 22, 0.22) 0%, transparent 60%),
+                 radial-gradient(circle at 100% 50%, rgba(249, 115, 22, 0.08) 0%, transparent 40%),
+                 linear-gradient(180deg, #0a0705 0%, #040302 100%);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  line-height: 1.5;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
+  transition: background 0.3s ease, color 0.2s ease;
+}
+
+/* Utilitários */
+.hidden {
+  display: none !important;
+}
+
+.text-gold {
+  color: var(--gold) !important;
+}
+
+.text-danger {
+  color: var(--primary) !important;
+}
+
+.text-success {
+  color: var(--green-neon) !important;
+}
+
+/* Header HUD Superior */
+.top-hud-header {
+  background: rgba(10, 12, 17, 0.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 10px 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  transition: border-color 0.3s ease;
+}
+
+.hud-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.hud-fighter-block h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--text-main);
+}
+
+.hud-fighter-block p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.hud-metrics-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.hud-metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hud-metric-item .metric-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.hud-metric-item .metric-val {
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.hud-energy-bar-wrap {
+  width: 90px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.hud-energy-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary-glow);
+  transition: width 0.3s ease;
+}
+
+.hud-actions-block {
+  display: flex;
+  gap: 8px;
+}
+
+/* Banner de Próxima Luta */
+.hud-fight-banner {
+  max-width: 1400px;
+  margin: 6px auto 0 auto;
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hud-fight-banner.active {
+  background: linear-gradient(90deg, var(--primary-glow-subtle) 0%, rgba(15, 18, 24, 0.6) 100%);
+  border-left: 4px solid var(--primary);
+}
+
+.hud-fight-banner.idle {
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 4px solid var(--text-dim);
+  color: var(--text-muted);
+}
+
+/* Barra de Navegação de Abas */
+.app-nav-bar {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+  white-space: nowrap;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+
+.nav-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  padding: 0 10px;
+}
+
+.nav-tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 3px solid transparent;
+}
+
+.nav-tab-btn:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.nav-tab-btn.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background: var(--primary-glow-subtle);
+  text-shadow: 0 0 12px var(--primary-glow);
+}
+
+/* Conteúdo Principal */
+.main-content-area {
+  max-width: 1400px;
+  width: 100%;
+  margin: 20px auto;
+  padding: 0 20px 60px 20px;
+  flex: 1;
+}
+
+/* Cards e Contêineres Gerais */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  transition: var(--transition);
+}
+
+.card:hover {
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px var(--primary-glow-subtle);
+}
+
+/* ============================================================ */
+/* ESTILOS DO MODAL DE PERSONALIZAÇÃO DE TEMA E CORES          */
+/* ============================================================ */
+.theme-customizer-box {
+  max-width: 680px !important;
+  width: 95% !important;
+  background: radial-gradient(circle at 50% 0%, var(--bg-card) 0%, var(--bg-dark) 100%) !important;
+  border: 2px solid var(--border-active) !important;
+  box-shadow: 0 0 50px var(--primary-glow), 0 25px 60px rgba(0, 0, 0, 0.85) !important;
+  border-radius: var(--radius-lg);
+  padding: 30px !important;
+  animation: theme-pop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes theme-pop {
+  from { transform: scale(0.92); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.theme-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+  border-bottom: 1px solid var(--border-subtle);
+  padding-bottom: 16px;
+}
+
+.theme-modal-header h2 {
+  font-size: 1.45rem;
+  color: var(--text-main);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.theme-modal-header p {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.theme-section-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--primary);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+.theme-presets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+
+.theme-preset-card {
+  background: rgba(15, 20, 30, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.theme-preset-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(25, 32, 48, 0.8);
+}
+
+.theme-preset-card.active {
+  border: 2px solid var(--primary);
+  background: var(--primary-glow-subtle);
+  box-shadow: 0 0 16px var(--primary-glow);
+}
+
+.preset-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.preset-name {
+  font-weight: 800;
+  font-size: 0.92rem;
+  color: var(--text-main);
+}
+
+.preset-badge {
+  font-size: 0.65rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+}
+
+.preset-desc {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.preset-palette-preview {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.color-dot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* Área de Custom Color Picker */
+.custom-palette-box {
+  background: rgba(10, 14, 20, 0.65);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 18px;
+}
+
+.custom-inputs-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.custom-input-group label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+
+.color-picker-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-dark);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+}
+
+.color-picker-wrap input[type="color"] {
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+}
+
+.color-picker-wrap span {
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-main);
+}
+
+.floating-theme-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(17, 20, 28, 0.9);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.6);
+  transition: var(--transition);
+}
+
+.floating-theme-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  box-shadow: 0 0 16px var(--primary-glow);
+  transform: translateY(-2px);
+}
+
+
