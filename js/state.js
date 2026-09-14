@@ -26,6 +26,23 @@ export class GameState {
     this.saveGame();
   }
 
+  // Reseta completamente o estado do jogo e apaga o save
+  resetGame() {
+    this.fighter = null;
+    this.worldEngine = null;
+    this.lifeEngine = null;
+    this.trainingEngine = null;
+    this.activeDilemma = null;
+    this.currentView = 'carreira';
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.warn('Erro ao limpar storage no resetGame:', e);
+    }
+  }
+
   // Salva no LocalStorage
   saveGame() {
     if (!this.fighter) return;
@@ -84,14 +101,7 @@ export class GameState {
       return false;
     }
   }
-
-  resetGame() {
-    localStorage.removeItem(STORAGE_KEY);
-    this.fighter = null;
-    this.worldEngine = null;
-    this.lifeEngine = null;
-    this.trainingEngine = null;
-  }
 }
 
 export const gameState = new GameState();
+

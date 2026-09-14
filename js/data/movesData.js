@@ -268,8 +268,8 @@ export const ALL_MOVES_DATABASE = {
   // =========================================================================
   liver_hook: {
     id: 'liver_hook',
-    name: 'Gancho Violento no Fígado (Liver Hook)',
-    icon: '🩸',
+    name: 'Gancho Preciso no Fígado (Liver Hook)',
+    icon: '🎯',
     cost: 2,
     phase: 'STANDUP',
     category: 'boxing',
@@ -379,12 +379,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'STANDUP',
     category: 'boxing',
     modalities: ['boxing', 'mma'],
-    desc: 'Arremessa a mão direita com torque brutal de ombro por cima da guarda. Um toque para apagar.',
+    desc: 'Arremessa a mão direita com torque potente de ombro por cima da guarda. Um golpe clássico para definir o combate.',
     damage: 50,
     staminaCost: 14,
     koChance: 0.44,
     target: 'head',
-    effectText: 'BOMBA DESTRUÍDORA! Um impacto que faz tremer as cordas da arena!'
+    effectText: 'GOLPE FULMINANTE! Um impacto potente que faz tremer as cordas da arena!'
   },
   body_head_crossover: {
     id: 'body_head_crossover',
@@ -459,7 +459,7 @@ export const ALL_MOVES_DATABASE = {
     staminaCost: 5,
     koChance: 0.20,
     target: 'head',
-    effectText: 'INFIGHTING BRUTAL! Gancho curto pegou em cheio no maxilar na média distância!'
+    effectText: 'INFIGHTING CIRÚRGICO! Gancho curto pegou em cheio no maxilar na média distância!'
   },
   telepathic_feint: {
     id: 'telepathic_feint',
@@ -747,12 +747,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'STANDUP',
     category: 'muay_thai',
     modalities: ['muay_thai', 'mma'],
-    desc: 'Giro veloz cravando a ponta do osso do cotovelo no supercílio. Abre cortes imediatos.',
+    desc: 'Giro veloz cravando a ponta do cotovelo no supercílio com técnica apurada.',
     damage: 36,
     staminaCost: 8,
     koChance: 0.32,
     target: 'head',
-    effectText: 'COTOVELADA GIRATÓRIA PRECISA! O sangue jorra do rosto do oponente!'
+    effectText: 'COTOVELADA GIRATÓRIA PRECISA! Conexão técnica e incisiva que desequilibra o adversário!'
   },
   calf_kick: {
     id: 'calf_kick',
@@ -792,12 +792,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'CLINCH',
     category: 'muay_thai',
     modalities: ['muay_thai'],
-    desc: 'Golpe seco com o fio do cotovelo quebrando a guarda e esmagando o osso nasal.',
+    desc: 'Golpe seco com o fio do cotovelo ultrapassando a guarda no infighting.',
     damage: 30,
     staminaCost: 6,
     koChance: 0.25,
     target: 'head',
-    effectText: 'COTOVELADA HORIZONTAL SECA! O nariz do adversário quebrou na hora!'
+    effectText: 'COTOVELADA HORIZONTAL SECA! Conexão limpa no centro do rosto que atordoa o rival!'
   },
   clinch_knee_barrage: {
     id: 'clinch_knee_barrage',
@@ -812,7 +812,7 @@ export const ALL_MOVES_DATABASE = {
     staminaCost: 11,
     koChance: 0.34,
     target: 'body',
-    effectText: 'CHUVAS DE JOELHADAS! O oponente vomita o ar e pede arrego!'
+    effectText: 'CHUVAS DE JOELHADAS! O impacto consecutivo na linha de cintura drena todo o oxigênio do adversário!'
   },
   spinning_back_kick: {
     id: 'spinning_back_kick',
@@ -827,7 +827,7 @@ export const ALL_MOVES_DATABASE = {
     staminaCost: 10,
     koChance: 0.30,
     target: 'body',
-    effectText: 'CALCANHAR RODADO NO FÍGADO! Um impacto brutal que desabou o rival!'
+    effectText: 'CALCANHAR RODADO NO FÍGADO! Um impacto cirúrgico que dobra o oponente na lona!'
   },
   diagonal_elbow: {
     id: 'diagonal_elbow',
@@ -837,12 +837,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'CLINCH',
     category: 'muay_thai',
     modalities: ['muay_thai'],
-    desc: 'Sobe em 45 graus rasgando a testa do adversário de baixo para cima.',
+    desc: 'Sobe em 45 graus atacando a linha de visão do adversário de baixo para cima.',
     damage: 34,
     staminaCost: 7,
     koChance: 0.28,
     target: 'head',
-    effectText: 'COTOVELADA DIAGONAL! Rasgo profundo que cobre os olhos do oponente de sangue!'
+    effectText: 'COTOVELADA DIAGONAL! Golpe incisivo que abre vantagem técnica imediata no round!'
   },
   switch_head_kick: {
     id: 'switch_head_kick',
@@ -1036,7 +1036,7 @@ export const ALL_MOVES_DATABASE = {
     phase: 'STANDUP',
     category: 'kickboxing',
     modalities: ['kickboxing'],
-    desc: 'Canelada brutal na linha de cintura que racha os braços na defesa.',
+    desc: 'Canelada pesada na linha de cintura que desgasta os braços na defesa.',
     damage: 36,
     staminaCost: 8,
     koChance: 0.24,
@@ -1051,7 +1051,7 @@ export const ALL_MOVES_DATABASE = {
     phase: 'STANDUP',
     category: 'kickboxing',
     modalities: ['kickboxing'],
-    desc: 'Salto e giro duplo no ar atingindo o queixo com precisão circense e força brutal.',
+    desc: 'Salto e giro duplo no ar atingindo o queixo com precisão acrobática e velocidade impressionante.',
     damage: 54,
     staminaCost: 15,
     koChance: 0.46,
@@ -1100,12 +1100,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'CLINCH',
     category: 'wrestling',
     modalities: ['wrestling', 'mma'],
-    desc: 'Abraça a cintura por trás, ergue o oponente nos ombros e o crava de cabeça no tablado.',
+    desc: 'Abraça a cintura por trás, ergue o oponente nos ombros e o crava com técnica no tablado.',
     damage: 46,
     staminaCost: 12,
     koChance: 0.35,
     target: 'head',
-    effectText: 'SUPLEX MONSTRUOSO! O adversário foi catapultado de cabeça no solo!'
+    effectText: 'SUPLEX ESPETACULAR! Projeção olímpica de cinema que levanta a torcida!'
   },
   blast_double_leg: {
     id: 'blast_double_leg',
@@ -1115,12 +1115,12 @@ export const ALL_MOVES_DATABASE = {
     phase: 'STANDUP',
     category: 'wrestling',
     modalities: ['wrestling', 'mma'],
-    desc: 'Dispara a cabeça como um aríete no esterno e passa as mãos por trás dos joelhos.',
+    desc: 'Acelera com o ombro no peito e passa as mãos por trás dos joelhos para derrubar.',
     damage: 34,
     staminaCost: 8,
     koChance: 0.20,
     target: 'body',
-    effectText: 'BLAST DOUBLE LEG BRUTAL! O rival foi atropelado como por um trem!'
+    effectText: 'BLAST DOUBLE LEG EXPLOSIVO! Derrubada veloz e potente que coloca o rival no solo!'
   },
   high_crotch_lift: {
     id: 'high_crotch_lift',

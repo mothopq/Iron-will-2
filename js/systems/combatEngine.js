@@ -239,8 +239,8 @@ export class CombatEngine {
     if (oStats.cuts >= 30) {
       return {
         id: 'OPPONENT_CUT',
-        label: '🩸 ADVERSÁRIO COM CORTE PROFUNDO!',
-        desc: 'O supercílio do adversário está jorrando sangue! Castigue o ferimento para forçar TKO médico!',
+        label: '🩸 ADVERSÁRIO COM CORTE ABERTO!',
+        desc: 'O supercílio do adversário está aberto e avariado! Trabalhe a curta distância para desgastar a visão do rival!',
         badgeClass: 'situation-cut'
       };
     }
@@ -441,7 +441,7 @@ export class CombatEngine {
         this.phase = 'CLINCH';
         pStats.stamina = Math.min(100, pStats.stamina + 20);
         soundFX.playBlock();
-        this.log(`Você fecha o clinch e apoia seu peso morto em ${this.opponent.shortName}, recuperando o oxigênio!`, 'action');
+        this.log(`Você fecha o clinch com firmeza em ${this.opponent.shortName}, controlando a postura e recuperando o oxigênio!`, 'action');
         return;
       }
 
@@ -727,25 +727,25 @@ export class CombatEngine {
       if (move.target === 'body') {
         oStats.bodyHP = Math.max(0, oStats.bodyHP - damage);
         oStats.stamina = Math.max(0, oStats.stamina - 20);
-        this.log(`🔥 GOLPE CIRÚRGICO! ${move.name} explode no tronco de ${this.opponent.shortName}! O ar dele acabou!`, 'critical');
+        this.log(`🥊 GOLPE CERTEIRO NO CORPO! ${move.name} acerta em cheio o tronco de ${this.opponent.shortName}, tirando o ar do adversário!`, 'critical');
       } else if (move.target === 'legs') {
         oStats.legsHP = Math.max(0, oStats.legsHP - damage);
-        this.log(`⚡ CANELADA FEROZ! ${move.name} detona a perna de apoio de ${this.opponent.shortName}!`, 'critical');
+        this.log(`🦵 CHUTE BAIXO POTENTE! ${move.name} castiga a perna de apoio de ${this.opponent.shortName}, minando sua mobilidade!`, 'critical');
       } else {
         // Head / Cabeça
         oStats.headHP = Math.max(0, oStats.headHP - damage);
         const chinMultiplier = move.koChance ? (0.50 + move.koChance * 0.45) : 0.55;
         const rockedMultiplier = isOppRocked ? 1.3 : 1.0;
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(damage * chinMultiplier * rockedMultiplier));
-        this.log(`💣 IMPACTO DESTRUIDOR! ${move.effectText || `${move.name.toUpperCase()} acerta em cheio a cabeça!`}`, 'critical');
+        this.log(`🎯 GOLPE CONTUNDENTE! ${move.effectText || `${move.name.toUpperCase()} conecta com grande impacto na cabeça!`}`, 'critical');
         if (isOppRocked && oStats.chinHP <= 0) {
-          this.log(`💥 NOCAUTE DEFINITIVO! ${this.opponent.shortName} foi apagado pelo seu golpe especial ${move.name}!`, 'critical');
+          this.log(`💥 NOCAUTE! ${this.opponent.shortName} vai à lona após o golpe especial ${move.name}!`, 'critical');
         }
 
         // Cortes
         if (move.id === 'spinning_elbow' || move.id === 'superman_punch') {
           oStats.cuts += 25;
-          this.log(`🩸 A pancada abriu um rasgo profundo com sangue espirrando!`, 'danger');
+          this.log(`🩹 O impacto abriu um corte no supercílio do adversário! Sangramento requer atenção médica.`, 'danger');
         }
       }
 
@@ -755,21 +755,22 @@ export class CombatEngine {
         this.groundPosition = 'MOUNT';
         this.groundTopFighter = 'player';
         pStats.takedownsLanded++;
-        this.log(`💥 O impacto do Suplex fez o tablado tremer! Você já cai dominando na MONTADA!`, 'highlight');
+        this.log(`🤼 QUEDA ESPETACULAR! Suplex executado com perfeição! Você cai estabilizado na MONTADA!`, 'highlight');
       }
 
       this.checkKnockdown('opponent', oStats);
+      if (this.checkFinishConditions()) return;
     } else {
       soundFX.playDodge();
       if (check.isFumble) {
-        this.log(`Você arriscou o ${move.name}, mas cortou apenas o ar e perdeu o equilíbrio!`, 'normal');
+        this.log(`Você tentou o ${move.name}, mas o golpe passou no vazio e você se desequilibrou.`, 'normal');
       } else {
-        this.log(`${this.opponent.shortName} antecipa sua tentativa arriscada de ${move.name} e sai do raio de ação!`, 'defense');
+        this.log(`${this.opponent.shortName} faz boa leitura da sua tentativa de ${move.name} e sai do raio de ação!`, 'defense');
       }
     }
 
     // Se o oponente foi nocauteado ou luta acabou, não há revide
-    if (oStats.chinHP <= 0 || oStats.headHP <= 0 || this.isOver) {
+    if (this.checkFinishConditions() || this.isOver || oStats.chinHP <= 0 || oStats.headHP <= 0 || oStats.bodyHP <= 0 || oStats.legsHP <= 0) {
       return;
     }
 
@@ -806,10 +807,10 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 1.4));
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`BLITZ VIOLENTA! Você encurrala ${this.opponent.shortName} nas cordas/grade e descarrega uma saraivada implacável!`, 'critical');
+        this.log(`BLITZ OFENSIVA! Você encurrala ${this.opponent.shortName} nas cordas/grade e dispara uma sequência contundente!`, 'critical');
       } else {
         soundFX.playBlock();
-        this.log(`${this.opponent.shortName} se encolhe no desespero e sobrevive ao bombardeio!`, 'defense');
+        this.log(`${this.opponent.shortName} se fecha na guarda dupla e absorve a pressão!`, 'defense');
       }
     }
     // 2. TIRO CERTEIRO NO QUEIXO (Adversário grogue)
@@ -825,10 +826,10 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 1.6));
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`PRECISÃO CIRÚRGICA! Você encontra o ângulo perfeito e conecta um míssil no queixo trêmulo de ${this.opponent.shortName}!`, 'critical');
+        this.log(`GOLPE CERTEIRO! Você encontra o ângulo e conecta um golpe limpo no queixo de ${this.opponent.shortName}!`, 'critical');
       } else {
         soundFX.playDodge();
-        this.log(`O golpe no queixo passa a um centímetro do alvo!`, 'normal');
+        this.log(`O golpe no queixo passa a centímetros do alvo!`, 'normal');
       }
     }
     // 3. CAÇADA METÓDICA (Adversário grogue)
@@ -840,7 +841,7 @@ export class CombatEngine {
       oStats.headHP = Math.max(0, oStats.headHP - pDamage);
       oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 0.8));
       soundFX.playHeavyHit();
-      this.log(`Você encurrala ${this.opponent.shortName} com frieza, cortando passos e pontuando golpes limpos sem correr riscos!`, 'highlight');
+      this.log(`Você cerca ${this.opponent.shortName} com paciência, controlando a distância e pontuando sem correr riscos!`, 'highlight');
     }
     // 4. GUARDA CONCHA DE SOBREVIVÊNCIA (Jogador grogue)
     else if (pAct === 'turtle_guard') {
@@ -848,14 +849,14 @@ export class CombatEngine {
       pStats.headHP = Math.min(pStats.maxHead || 200, pStats.headHP + 16);
       pStats.stamina = Math.min(100, pStats.stamina + 8);
       soundFX.playBlock();
-      this.log(`Você ergue os dois antebraços na guarda concha hermética, absorve a tempestade e começa a clarear as ideias!`, 'defense');
+      this.log(`Você ergue a guarda concha fechada, bloqueia os ataques e recomponha o equilíbrio!`, 'defense');
     }
     // 5. CIRCULAR E FUGIR (Jogador grogue)
     else if (pAct === 'circle_evade') {
       pStats.chinHP = Math.min(pStats.maxChin || 220, pStats.chinHP + 25);
       pStats.stamina = Math.min(100, pStats.stamina + 12);
       soundFX.playDodge();
-      this.log(`Jogo de pernas salvador! Você circula rápido lateralmente, saindo do raio de fogo de ${this.opponent.shortName}!`, 'action');
+      this.log(`Bom trabalho de pernas! Você circula lateralmente, saindo do raio de ação de ${this.opponent.shortName}!`, 'action');
     }
     // 6. GOLPE DO DESESPERO (Jogador grogue arrisca tudo)
     else if (pAct === 'hail_mary_counter') {
@@ -870,10 +871,10 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 1.5));
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`MILAGRE! No puro desespero, você solta um cruzado cego e PEGA ${this.opponent.shortName} EM CHEIO NO CONTRAGOLPE! A luta virou!`, 'critical');
+        this.log(`CONTRAGOLPE PERFEITO! No reflexo, você solta um cruzado de encontro que acerta ${this.opponent.shortName} em cheio! Grande momento!`, 'critical');
       } else {
         soundFX.playDodge();
-        this.log(`Seu contragolpe kamikaze corta o vento e você fica desprotegido!`, 'danger');
+        this.log(`Sua tentativa arriscada de contragolpe passa no vazio e você fica exposto!`, 'danger');
       }
     }
     // 7. CASTIGAR O CORTE ABERTO (Adversário sangrando)
@@ -885,12 +886,12 @@ export class CombatEngine {
         pStrikeLanded = true;
         pDamage = Math.round((18 + (pAttrs.punchPower * 0.2)) * (check.isCrit ? 1.30 : 1.0));
         oStats.headHP = Math.max(0, oStats.headHP - pDamage);
-        oStats.cuts += 30;
+        oStats.cuts += 20;
         soundFX.playHeavyHit();
-        this.log(`ALVO NO CORTE! Você crava socos retos direto na ferida aberta de ${this.opponent.shortName}! O sangue jorra abundantemente!`, 'critical');
+        this.log(`PONTUAÇÃO PRECISA! Você conecta socos retos que tocam o supercílio machucado de ${this.opponent.shortName}!`, 'critical');
       } else {
         soundFX.playBlock();
-        this.log(`${this.opponent.shortName} ergue o braço para proteger o supercílio machucado.`, 'defense');
+        this.log(`${this.opponent.shortName} protege a cabeça com o antebraço e evita o contato.`, 'defense');
       }
     }
     // 8. CASTIGO NA LINHA DE CINTURA (Adversário sem gás)
@@ -905,7 +906,7 @@ export class CombatEngine {
         oStats.bodyHP = Math.max(0, oStats.bodyHP - pDamage);
         oStats.stamina = Math.max(0, oStats.stamina - 20);
         soundFX.playHeavyHit();
-        this.log(`GOLPE NO FÍGADO! Um gancho violento na costela dobra ${this.opponent.shortName} ao meio! O ar acabou de vez!`, 'highlight');
+        this.log(`GOLPE NO FÍGADO! Gancho firme na costela! ${this.opponent.shortName} sente o impacto na linha de cintura e recua sem fôlego!`, 'highlight');
       } else {
         soundFX.playBlock();
         this.log(`${this.opponent.shortName} cola os cotovelos no corpo e bloqueia o golpe.`, 'defense');
@@ -920,7 +921,7 @@ export class CombatEngine {
       oStats.headHP = Math.max(0, oStats.headHP - pDamage);
       oStats.stamina = Math.max(0, oStats.stamina - 15);
       soundFX.playHeavyHit();
-      this.log(`RITMO AVASSALADOR! Você sufoca ${this.opponent.shortName} com alto volume e não o deixa respirar!`, 'action');
+      this.log(`PRESSÃO TOTAL! Você acelera o ritmo e encurrala ${this.opponent.shortName} com alto volume de golpes!`, 'action');
     }
     // 10. PAUTAR COM JAB E RESPIRAR (Jogador sem gás)
     else if (pAct === 'pace_and_jab') {
@@ -930,13 +931,13 @@ export class CombatEngine {
       pDamage = Math.round(7 + (pAttrs.punchPower * 0.1));
       oStats.headHP = Math.max(0, oStats.headHP - pDamage);
       soundFX.playHeavyHit();
-      this.log(`Jab educado e econômico! Você pontua na ponta do nariz de ${this.opponent.shortName} e recupera o ar!`, 'action');
+      this.log(`Jab técnico e econômico! Você pontua no rosto de ${this.opponent.shortName} e controla o fôlego!`, 'action');
     }
     // 11. JOGO DE PERNAS EVASIVO (Jogador sem gás)
     else if (pAct === 'defensive_footwork') {
       pStats.stamina = Math.min(100, pStats.stamina + 18);
       soundFX.playDodge();
-      this.log(`Você usa o ringue inteiro com passadas largas, descansando os ombros e oxigenando os pulmões.`, 'normal');
+      this.log(`Movimentação fluida! Você usa o tablado com passadas inteligentes para recuperar o fôlego.`, 'normal');
     }
     // 12. CHUTE DE MISERICÓRDIA NA PERNA (Adversário com perna machucada)
     else if (pAct === 'finish_leg_kick') {
@@ -950,10 +951,10 @@ export class CombatEngine {
         oStats.legsHP = Math.max(0, oStats.legsHP - pDamage);
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`CHUTE DE MISERICÓRDIA NA COXA! A perna castigada de ${this.opponent.shortName} falseia e ele cai desequilibrado de dor!`, 'critical');
+        this.log(`CHUTE BAIXO DECISIVO NA COXA! A perna castigada de ${this.opponent.shortName} falseia e ele vai ao solo desequilibrado!`, 'critical');
       } else {
         soundFX.playBlock();
-        this.log(`${this.opponent.shortName} recolhe a perna a tempo.`, 'normal');
+        this.log(`${this.opponent.shortName} recolhe a perna a tempo e evita o golpe.`, 'normal');
       }
     }
     // -------------------------------------------------------------
@@ -968,13 +969,13 @@ export class CombatEngine {
         oStats.headHP = Math.max(0, oStats.headHP - pDamage);
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 0.20));
         soundFX.playHeavyHit();
-        this.log(`Seu jab rápido estala na cara de ${this.opponent.shortName}!`, 'action');
+        this.log(`Seu jab rápido conecta na guarda e pontua em ${this.opponent.shortName}!`, 'action');
       } else {
         soundFX.playDodge();
         if (check.isFumble) {
-          this.log(`Seu jab passa no vazio e você se desequilibra por um segundo.`, 'normal');
+          this.log(`Seu jab passa no vazio e você se desequilibra por um instante.`, 'normal');
         } else {
-          this.log(`${this.opponent.shortName} se esquiva por milímetros do seu jab.`, 'normal');
+          this.log(`${this.opponent.shortName} se esquiva com precisão do seu jab.`, 'normal');
         }
       }
     } else if (pAct === 'combo_1_2') {
@@ -1005,17 +1006,17 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 0.58));
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`BOMBA! Seu overhand entra devastador na têmpora de ${this.opponent.shortName}!`, 'critical');
+        this.log(`OVERHAND POTENTE! Seu cruzado entra com força na lateral da cabeça de ${this.opponent.shortName}!`, 'critical');
         if (Math.random() < 0.25 || check.isCrit) {
-          oStats.cuts += 20;
-          this.log(`O impacto abriu um corte sangrento no supercílio de ${this.opponent.shortName}!`, 'danger');
+          oStats.cuts += 18;
+          this.log(`O golpe abriu um corte no supercílio de ${this.opponent.shortName}!`, 'danger');
         }
       } else {
         soundFX.playDodge();
         if (check.isFumble) {
-          this.log(`Você soltou a pedrada, mas o golpe cortou apenas o ar e você quase foi ao chão com o giro!`, 'normal');
+          this.log(`Você arriscou o overhand pesado, mas errou no vazio e se desequilibrou no giro.`, 'normal');
         } else {
-          this.log(`Você arrisca o golpe forte mas erra no vazio, desequilibrando-se momentaneamente.`, 'normal');
+          this.log(`Você arrisca o golpe forte mas erra no vazio, recompondo a postura rapidamente.`, 'normal');
         }
       }
     } else if (pAct === 'low_kick') {
@@ -1028,11 +1029,11 @@ export class CombatEngine {
         pDamage = Math.round((15 + (pAttrs.punchPower * 0.18)) * (check.isCrit ? 1.30 : 1.0));
         oStats.legsHP = Math.max(0, oStats.legsHP - pDamage);
         soundFX.playHeavyHit();
-        this.log(`Canelada brutal na coxa! A perna de apoio de ${this.opponent.shortName} treme com o impacto!`, 'highlight');
+        this.log(`Bela canelada na coxa! O chute baixo castiga a perna de apoio de ${this.opponent.shortName}!`, 'highlight');
       } else {
         soundFX.playBlock();
         pStats.legsHP = Math.max(0, pStats.legsHP - 5);
-        this.log(`${this.opponent.shortName} levanta o joelho e checa seu chute com a canela dura!`, 'danger');
+        this.log(`${this.opponent.shortName} levanta o joelho e checa seu chute com bloqueio de canela!`, 'danger');
       }
     } else if (pAct === 'head_kick') {
       pStats.stamina = Math.max(5, pStats.stamina - 9);
@@ -1046,7 +1047,7 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - Math.round(pDamage * 0.65));
         soundFX.playHeavyHit();
         soundFX.playCrowdRoar();
-        this.log(`CHUTE ALTO DEVASTADOR NA CABEÇA! O capacete de ossos de ${this.opponent.shortName} foi abalado!`, 'critical');
+        this.log(`CHUTE ALTO CERTEIRO NA CABEÇA! A canelada alta entra na têmpora de ${this.opponent.shortName}!`, 'critical');
       } else {
         soundFX.playDodge();
         if (check.isFumble) {
@@ -1065,16 +1066,17 @@ export class CombatEngine {
         oStats.chinHP = Math.max(0, oStats.chinHP - extraChin);
         if (oStats.chinHP <= 0) {
           soundFX.playCrowdRoar();
-          this.log(`💥 NOCAUTE BRUTAL! Aproveitando o adversário grogue, seu golpe apagou o disjuntor de ${this.opponent.shortName}!`, 'finish');
+          this.log(`💥 NOCAUTE! Aproveitando o adversário desestabilizado, seu golpe decreta a vitória sobre ${this.opponent.shortName}!`, 'finish');
         }
       }
       pStats.strikesLanded++;
       pStats.currentRoundScore.damage += pDamage;
       this.checkKnockdown('opponent', oStats);
+      if (this.checkFinishConditions()) return;
     }
 
-    // Se o oponente foi nocauteado ou ficou com queixo zerado, encerra sem revide
-    if (oStats.chinHP <= 0 || oStats.headHP <= 0 || this.isOver) {
+    // Se o oponente foi nocauteado ou ficou sem perna/corpo/queixo, encerra sem revide
+    if (this.checkFinishConditions() || this.isOver || oStats.chinHP <= 0 || oStats.headHP <= 0 || oStats.bodyHP <= 0 || oStats.legsHP <= 0) {
       return;
     }
 
@@ -1130,7 +1132,7 @@ export class CombatEngine {
 
     if (shouldPromptSkillCheck && typeof this.onSkillCheck === 'function') {
       const moveLabels = {
-        'power_hook': 'Cruzado Violento / Overhand',
+        'power_hook': 'Cruzado Potente / Overhand',
         'head_kick': 'Chute Alto Devastador',
         'uppercut': 'Uppercut Fura-Guarda',
         'body_kick': 'Chute nas Costelas',
@@ -1166,7 +1168,7 @@ export class CombatEngine {
       } else if (skillResult === 'SUCCESS') {
         // Esquiva Cirúrgica (Evita 100% do Dano do Rival)
         soundFX.playDodge();
-        this.log(`💨 [ESQUIVA CIRÚRGICA!] (Skill Check Bem-Sucedido!) Você leu o ataque no reflexo e esquivou! O golpe violento de ${this.opponent.shortName} cortou apenas o ar!`, 'highlight');
+        this.log(`💨 [ESQUIVA CIRÚRGICA!] (Skill Check Bem-Sucedido!) Você leu o ataque no reflexo e esquivou! O golpe potente de ${this.opponent.shortName} cortou apenas o ar!`, 'highlight');
         return;
       } else {
         // Falha no Skill Check
@@ -1201,17 +1203,17 @@ export class CombatEngine {
         pStats.headHP = Math.max(0, pStats.headHP - oDamage);
         pStats.chinHP = Math.max(0, pStats.chinHP - Math.round(oDamage * 0.48));
         soundFX.playHeavyHit();
-        this.log(`💣 [BOMBA DO RIVAL] O cruzado violento de ${this.opponent.shortName} explode na sua têmpora!`, 'critical');
+        this.log(`💥 [CRUZADO DO RIVAL] O cruzado de ${this.opponent.shortName} conecta com impacto na lateral da sua cabeça!`, 'critical');
         if (Math.random() < 0.20 || check.isCrit) {
           pStats.cuts += 14;
-          this.log(`🩸 O impacto abriu um corte no seu supercílio!`, 'danger');
+          this.log(`🩹 O impacto abriu um corte no seu supercílio!`, 'danger');
         }
       } else {
         soundFX.playDodge();
         if (check.isFumble) {
-          this.log(`💨 [ERRO DO RIVAL] ${this.opponent.shortName} solta um cruzado no vazio e quase cai com o próprio giro!`, 'normal');
+          this.log(`💨 [ERRO DO RIVAL] ${this.opponent.shortName} solta um cruzado no vazio e perde o equilíbrio!`, 'normal');
         } else {
-          this.log(`💨 [ESQUIVA] ${this.opponent.shortName} tenta te nocautear com um cruzado pesado, mas você faz o pêndulo e esquiva!`, 'action');
+          this.log(`💨 [ESQUIVA] ${this.opponent.shortName} tenta um cruzado potente, mas você faz o pêndulo e esquiva com elegância!`, 'action');
         }
       }
     }
@@ -1238,10 +1240,10 @@ export class CombatEngine {
         pStats.bodyHP = Math.max(0, pStats.bodyHP - oDamage);
         pStats.stamina = Math.max(5, pStats.stamina - 10);
         soundFX.playHeavyHit();
-        this.log(`🥊 [GOLPE NO CORPO] ${this.opponent.shortName} enterra um soco violento nas suas costelas! Seu fôlego cai!`, 'danger');
+        this.log(`🥊 [GOLPE NO CORPO] ${this.opponent.shortName} conecta um gancho no abdômen! Seu fôlego diminui!`, 'danger');
       } else {
         soundFX.playBlock();
-        this.log(`🛡️ [BLOQUEIO] ${this.opponent.shortName} desce um gancho no seu corpo, mas você amortece com o cotovelo colado!`, 'defense');
+        this.log(`🛡️ [BLOQUEIO] ${this.opponent.shortName} desce um golpe no seu corpo, mas você amortece com o cotovelo colado!`, 'defense');
       }
     }
     // 5. BODY KICK (Chute na Linha de Cintura)
@@ -1252,10 +1254,10 @@ export class CombatEngine {
         pStats.bodyHP = Math.max(0, pStats.bodyHP - oDamage);
         pStats.stamina = Math.max(5, pStats.stamina - 12);
         soundFX.playHeavyHit();
-        this.log(`🦵 [CHUTE DO RIVAL] A canela de ${this.opponent.shortName} estala com estrondo nas suas costelas!`, 'critical');
+        this.log(`🦵 [CHUTE NO CORPO] A canela de ${this.opponent.shortName} atinge suas costelas com firmeza!`, 'critical');
       } else {
         soundFX.playBlock();
-        this.log(`🛡️ [BLOQUEIO] ${this.opponent.shortName} dispara um chute nas suas costelas, mas você absorve com os braços!`, 'defense');
+        this.log(`🛡️ [BLOQUEIO] ${this.opponent.shortName} dispara um chute nas suas costelas, mas você absorve com a guarda fechada!`, 'defense');
       }
     }
     // 6. HEAD KICK (Chute Alto)
@@ -1267,11 +1269,11 @@ export class CombatEngine {
         pStats.headHP = Math.max(0, pStats.headHP - oDamage);
         pStats.chinHP = Math.max(0, pStats.chinHP - Math.round(oDamage * 0.52));
         soundFX.playHeavyHit();
-        this.log(`💥 [CHUTE ALTO DO RIVAL] A canela de ${this.opponent.shortName} chicoteia na lateral da sua cabeça!`, 'critical');
+        this.log(`💥 [CHUTE ALTO DO RIVAL] A canela de ${this.opponent.shortName} conecta na lateral da sua cabeça!`, 'critical');
       } else {
         soundFX.playDodge();
         if (check.isFumble) {
-          this.log(`💨 [ERRO DO RIVAL] ${this.opponent.shortName} arrisca a canelada alta, mas erra no ar e quase escorrega!`, 'normal');
+          this.log(`💨 [ERRO DO RIVAL] ${this.opponent.shortName} arrisca a canelada alta, mas erra no ar e perde a base!`, 'normal');
         } else {
           this.log(`💨 [ESQUIVA] ${this.opponent.shortName} chuta alto com força, mas você inclina o tronco e o golpe passa raspando!`, 'normal');
         }
@@ -1284,7 +1286,7 @@ export class CombatEngine {
         oDamage = Math.round((13 + (oAttrs.kicking * 0.16)) * finalMult);
         pStats.legsHP = Math.max(0, pStats.legsHP - oDamage);
         soundFX.playHeavyHit();
-        this.log(`🦵 [CHUTE BAIXO] ${this.opponent.shortName} chuta sua perna de apoio com impacto doloroso!`, 'danger');
+        this.log(`🦵 [CHUTE BAIXO] ${this.opponent.shortName} chuta sua perna de apoio com impacto firme!`, 'danger');
       } else {
         soundFX.playBlock();
         this.log(`🛡️ [DEFESA] ${this.opponent.shortName} solta um chute baixo, mas você levanta a canela no bloqueio perfeito!`, 'defense');
@@ -1311,7 +1313,7 @@ export class CombatEngine {
         pStats.headHP = Math.max(0, pStats.headHP - oDamage);
         pStats.chinHP = Math.max(0, pStats.chinHP - Math.round(oDamage * 0.35));
         soundFX.playHeavyHit();
-        this.log(`💥 [ATAQUE DO RIVAL] ${this.opponent.shortName} pressiona e conecta um golpe limpo no seu queixo!`, 'danger');
+        this.log(`💥 [ATAQUE DO RIVAL] ${this.opponent.shortName} avança e conecta um golpe limpo!`, 'danger');
       } else {
         soundFX.playBlock();
         this.log(`🛡️ [BLOQUEIO] ${this.opponent.shortName} ataca no centro do ringue, mas você bloqueia com firmeza!`, 'defense');
@@ -1319,17 +1321,18 @@ export class CombatEngine {
     }
 
     // -------------------------------------------------------------
-    // PROTEÇÃO HEROICA CONTRA NOCAUTE PREMATURO DO JOGADOR
+    // PROTEÇÃO HEROICA CONTRA NOCAUTE PREMATURO DE CABEÇA NO ROUND 1
     // -------------------------------------------------------------
-    if (pStats.chinHP <= 0 && this.currentRound <= 2 && pStats.knockdowns < 2) {
+    if (pStats.chinHP <= 0 && this.currentRound === 1 && pStats.knockdowns < 1 && pStats.legsHP > 0 && pStats.bodyHP > 0) {
       pStats.chinHP = 20;
-      this.log(`🛡️ RESISTÊNCIA DE GUERREIRO! Suas pernas bambeiam com o impacto terrível, mas seu queixo de aço se recusa a ceder!`, 'highlight');
+      this.log(`🛡️ RESISTÊNCIA DE GUERREIRO! Suas pernas bambeiam com o impacto, mas sua determinação te mantém na luta!`, 'highlight');
     }
 
     if (oStrikeLanded) {
       oStats.strikesLanded++;
       oStats.currentRoundScore.damage += oDamage;
       this.checkKnockdown('player', pStats);
+      if (this.checkFinishConditions()) return;
     }
   }
 
@@ -1409,7 +1412,7 @@ export class CombatEngine {
         oStats.cuts += 30;
         pStats.currentRoundScore.damage += dmg;
         soundFX.playHeavyHit();
-        this.log(`Cotovelada cortante na curta distância! O sangue jorra do rosto de ${this.opponent.shortName}!`, 'critical');
+        this.log(`Cotovelada técnica e precisa na curta distância! Abre um corte visível no supercílio de ${this.opponent.shortName}!`, 'critical');
       } else {
         this.log(`A cotovelada raspa de lado sem pegar em cheio.`, 'normal');
       }
@@ -1641,7 +1644,7 @@ export class CombatEngine {
           pStats.headHP = Math.max(0, pStats.headHP - gnpDmg);
           pStats.chinHP = Math.max(0, pStats.chinHP - Math.round(gnpDmg * 0.30));
           soundFX.playHeavyHit();
-          this.log(`${this.opponent.shortName} grampeia você no solo e desce socos curtos na orelha!`, 'danger');
+          this.log(`${this.opponent.shortName} trabalha por cima e conecta socos curtos na guarda!`, 'danger');
           if (pStats.chinHP <= 0 && (this.currentRound === 1 || pStats.headHP > 20)) pStats.chinHP = 6;
           this.checkKnockdown('player', pStats);
         }
@@ -1649,75 +1652,154 @@ export class CombatEngine {
     }
   }
 
-  // Checa se ocorreu knockdown e contagem do árbitro
+  // Checa se ocorreu knockdown e contagem do árbitro (cabeça, corpo ou pernas)
   checkKnockdown(targetFighterKey, stats) {
+    // 1. Knockdown por Queixo / Cabeça
     if (stats.chinHP <= 20 && Math.random() < 0.65) {
       stats.knockdowns++;
-      // Ao levantar do knockdown, recupera a postura e recompõe parte do queixo
       stats.chinHP = Math.max(stats.chinHP + 45, Math.round((stats.maxChin || 200) * 0.35));
-      soundFX.playCrowdRoar();
+      try { soundFX.playCrowdRoar(); } catch(e){}
 
       if (targetFighterKey === 'opponent') {
-        this.log(`KNOCKDOWN! ${this.opponent.shortName} DESABA NA LONA COM OS OLHOS VIDRADOS!`, 'critical');
+        this.log(`KNOCKDOWN! O golpe derruba ${this.opponent.shortName} no tablado! O árbitro abre contagem protetora!`, 'critical');
         this.fighterStats.player.currentRoundScore.knockdowns++;
       } else {
-        this.log(`VOCÊ FOI AO CHÃO! Um golpe violento te derrubou! O árbitro abre contagem... 7... 8... Você se levanta com raça!`, 'critical');
+        this.log(`KNOCKDOWN! O golpe te levou ao chão! O árbitro abre contagem... 7... 8... Você se recompõe e volta para a luta!`, 'critical');
         this.fighterStats.opponent.currentRoundScore.knockdowns++;
       }
 
-      // Se sofreu 3 knockdowns no mesmo round, TKO técnico!
       if (stats.knockdowns >= 3) {
         this.isOver = true;
         this.winner = targetFighterKey === 'opponent' ? 'player' : 'opponent';
         this.resultMethod = 'TKO';
         this.resultDetail = 'Regra de 3 Knockdowns no mesmo round';
-        this.log(`O árbitro interrompe a luta! TKO por acúmulo de quedas!`, 'finish');
+        this.log(`O árbitro encerra o combate! Vitória por TKO após o terceiro knockdown!`, 'finish');
       }
+      return;
+    }
+
+    // 2. Knockdown por Chutes na Perna
+    if (stats.legsHP <= 35 && stats.legsHP > 0 && Math.random() < 0.30) {
+      stats.knockdowns++;
+      stats.legsHP = Math.min(stats.maxLegs || 100, stats.legsHP + 15);
+      try { soundFX.playCrowdRoar(); } catch(e){}
+
+      if (targetFighterKey === 'opponent') {
+        this.log(`KNOCKDOWN POR CHUTE BAIXO! As pernas de ${this.opponent.shortName} falseiam e ele vai ao tablado, levantando na contagem!`, 'critical');
+        this.fighterStats.player.currentRoundScore.knockdowns++;
+      } else {
+        this.log(`KNOCKDOWN NA PERNA! O chute na coxa te desequilibra e você vai ao solo, recompondo-se na contagem do árbitro!`, 'critical');
+        this.fighterStats.opponent.currentRoundScore.knockdowns++;
+      }
+      return;
+    }
+
+    // 3. Knockdown por Golpe no Corpo (Fígado/Costela)
+    if (stats.bodyHP <= 35 && stats.bodyHP > 0 && Math.random() < 0.30) {
+      stats.knockdowns++;
+      stats.bodyHP = Math.min(stats.maxBody || 100, stats.bodyHP + 15);
+      try { soundFX.playCrowdRoar(); } catch(e){}
+
+      if (targetFighterKey === 'opponent') {
+        this.log(`KNOCKDOWN NO CORPO! Golpe na linha de cintura faz ${this.opponent.shortName} ajoelhar sem ar, mas ele volta antes do 10!`, 'critical');
+        this.fighterStats.player.currentRoundScore.knockdowns++;
+      } else {
+        this.log(`KNOCKDOWN NO CORPO! O golpe no fígado tira seu fôlego e você apoia o joelho no chão, levantando na contagem!`, 'critical');
+        this.fighterStats.opponent.currentRoundScore.knockdowns++;
+      }
+      return;
     }
   }
 
-  // Checagem de condições fatais de interrupção (KO, TKO, Cortes)
+  // Checagem de condições de interrupção (KO de cabeça, corpo ou pernas, TKO, Cortes)
   checkFinishConditions() {
+    if (this.isOver) return true;
     const pStats = this.fighterStats.player;
     const oStats = this.fighterStats.opponent;
 
-    // Nocaute do Oponente
+    // 1. TKO Técnico por Chutes na Perna no Oponente (Destruição da base/pernas)
+    if (oStats.legsHP <= 0) {
+      this.isOver = true;
+      this.winner = 'player';
+      this.resultMethod = 'TKO';
+      this.resultDetail = 'Nocaute Técnico por Chutes na Perna (Leg Kicks TKO)';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`TKO TÉCNICO! ${this.opponent.shortName} desaba com a perna castigada pelos chutes e não consegue apoiar o peso! O árbitro encerra a luta com vitória por TKO!`, 'finish');
+      return true;
+    }
+
+    // 2. TKO Técnico por Chutes na Perna Sofrido pelo Jogador
+    if (pStats.legsHP <= 0) {
+      this.isOver = true;
+      this.winner = 'opponent';
+      this.resultMethod = 'TKO';
+      this.resultDetail = 'Nocaute Técnico Sofrido por Chutes na Perna (Leg Kicks TKO)';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`TKO TÉCNICO! Suas pernas cedem ao castigo dos chutes baixos! Sem apoio para ficar em pé, o árbitro intervém e decreta TKO. Vitória de ${this.opponent.shortName}.`, 'finish');
+      return true;
+    }
+
+    // 3. Nocaute no Corpo do Oponente (Golpe no Fígado / Linha de Cintura)
+    if (oStats.bodyHP <= 0) {
+      this.isOver = true;
+      this.winner = 'player';
+      this.resultMethod = 'KO';
+      this.resultDetail = 'Nocaute com Golpe no Corpo (Fígado/Costela)';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`NOCAUTE NO CORPO! Golpe demolidor na linha de cintura! ${this.opponent.shortName} dobra de dor, perde todo o ar e vai ao tablado sem condições de continuar!`, 'finish');
+      return true;
+    }
+
+    // 4. Nocaute no Corpo Sofrido pelo Jogador
+    if (pStats.bodyHP <= 0) {
+      this.isOver = true;
+      this.winner = 'opponent';
+      this.resultMethod = 'KO';
+      this.resultDetail = 'Nocaute Sofrido no Corpo (Fígado/Costela)';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`NOCAUTE NO CORPO! O golpe na linha de cintura tira todo o seu fôlego! Você vai ao solo de joelhos e o árbitro encerra o combate. Vitória de ${this.opponent.shortName}.`, 'finish');
+      return true;
+    }
+
+    // 5. Nocaute na Cabeça do Oponente
     if (oStats.headHP <= 0 || oStats.chinHP <= 0) {
       this.isOver = true;
       this.winner = 'player';
       this.resultMethod = 'KO';
-      this.resultDetail = 'Nocaute Fulminante no Queixo';
-      soundFX.playCrowdRoar();
-      this.log(`NOCAUTE! ${this.opponent.shortName} CAI DESACORDADO! A ARENA VAI À LOUCURA!`, 'finish');
+      this.resultDetail = 'Nocaute no Queixo';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`NOCAUTE! Golpe limpo e certeiro no queixo! ${this.opponent.shortName} vai ao chão e o árbitro interrompe o combate! Vitória maiúscula!`, 'finish');
       return true;
     }
 
-    // Nocaute do Jogador (quando o Queixo se esgota totalmente)
-    if (pStats.chinHP <= 0) {
+    // 6. Nocaute na Cabeça Sofrido pelo Jogador
+    if (pStats.chinHP <= 0 || pStats.headHP <= 0) {
       this.isOver = true;
       this.winner = 'opponent';
       this.resultMethod = 'KO';
-      this.resultDetail = 'Nocaute Sofrido';
-      soundFX.playCrowdRoar();
-      this.log(`VOCÊ FOI APAGADO! O árbitro mergulha para te proteger. Vitória de ${this.opponent.shortName}.`, 'finish');
+      this.resultDetail = 'Nocaute Sofrido no Queixo';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`NOCAUTE! Você sofreu um golpe contundente e foi ao chão. O árbitro interrompe o combate para sua segurança. Vitória de ${this.opponent.shortName}.`, 'finish');
       return true;
     }
 
-    // TKO por cortes profundos (Parada Médica)
+    // 7. TKO por cortes profundos (Parada Médica)
     if (oStats.cuts >= 80) {
       this.isOver = true;
       this.winner = 'player';
       this.resultMethod = 'TKO';
-      this.resultDetail = 'Interrupção Médica por Corte Profundo';
-      this.log(`O médico da comissão examina o supercílio de ${this.opponent.shortName} e ENCERRA O COMBATE! Sangramento incontrolável!`, 'finish');
+      this.resultDetail = 'Interrupção Médica por Corte';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`O médico da comissão examina o corte no supercílio de ${this.opponent.shortName} e recomenda o encerramento do combate para preservação do atleta!`, 'finish');
       return true;
     }
     if (pStats.cuts >= 80) {
       this.isOver = true;
       this.winner = 'opponent';
       this.resultMethod = 'TKO';
-      this.resultDetail = 'Interrupção Médica por Cortes Graves';
-      this.log(`O médico decreta que seu olho está comprometido pelo sangue e interrompe a luta.`, 'finish');
+      this.resultDetail = 'Interrupção Médica por Corte';
+      try { soundFX.playCrowdRoar(); } catch(e){}
+      this.log(`O médico da comissão constata que seu corte no supercílio prejudica a visão e interrompe a luta por segurança.`, 'finish');
       return true;
     }
 

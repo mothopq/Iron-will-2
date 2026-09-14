@@ -19,7 +19,7 @@ export class WorldEngine {
     const list = [];
     
     // Campeão Atual (#0)
-    const champion = generateOpponent(this.player, { isTitleFight: true, tier: 'MUNDIAL' });
+    const champion = generateOpponent(this.player, { isTitleFight: true, tier: 'MUNDIAL', category: 'mundial' });
     champion.title = 'Campeão Mundial Indiscutível';
     champion.rank = 0; // 0 = Campeão
     champion.record.wins = 28 + Math.floor(Math.random() * 8);
@@ -56,7 +56,7 @@ export class WorldEngine {
         maxLosses = 9;
       }
 
-      const opp = generateOpponent(this.player, { rankTier: r, tier: tier });
+      const opp = generateOpponent(this.player, { rankTier: r, tier: tier, category: 'mundial' });
       opp.rank = r;
       opp.record.wins = minWins + Math.floor(Math.random() * (maxWins - minWins + 1));
       opp.record.losses = Math.floor(Math.random() * maxLosses);
@@ -78,7 +78,7 @@ export class WorldEngine {
     const currentLen = this.rankings.length;
     if (currentLen < 51) {
       for (let r = currentLen; r <= 50; r++) {
-        const opp = generateOpponent(this.player, { rankTier: r, tier: r <= 30 ? 'MEDIANO' : 'AMADOR' });
+        const opp = generateOpponent(this.player, { rankTier: r, tier: r <= 30 ? 'MEDIANO' : 'AMADOR', category: 'mundial' });
         opp.rank = r;
         opp.record.wins = Math.max(6, 14 - Math.floor(r / 5) + Math.floor(Math.random() * 4));
         opp.record.losses = 2 + Math.floor(Math.random() * 6);

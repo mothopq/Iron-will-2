@@ -124,6 +124,8 @@ export class SkillCheckEngine {
       window.addEventListener('keydown', this.keyHandler, { capture: true });
       this.container.addEventListener('click', this.clickHandler);
       this.container.addEventListener('touchstart', this.clickHandler, { passive: false });
+      this.overlay.addEventListener('click', this.clickHandler);
+      this.overlay.addEventListener('touchstart', this.clickHandler, { passive: false });
 
       const checkCurrentAngle = () => {
         if (hasResponded) return;
@@ -253,9 +255,15 @@ export class SkillCheckEngine {
       window.removeEventListener('keydown', this.keyHandler, { capture: true });
       this.keyHandler = null;
     }
-    if (this.clickHandler && this.container) {
-      this.container.removeEventListener('click', this.clickHandler);
-      this.container.removeEventListener('touchstart', this.clickHandler);
+    if (this.clickHandler) {
+      if (this.container) {
+        this.container.removeEventListener('click', this.clickHandler);
+        this.container.removeEventListener('touchstart', this.clickHandler);
+      }
+      if (this.overlay) {
+        this.overlay.removeEventListener('click', this.clickHandler);
+        this.overlay.removeEventListener('touchstart', this.clickHandler);
+      }
       this.clickHandler = null;
     }
     if (this.overlay) {

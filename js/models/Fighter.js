@@ -165,9 +165,11 @@ export class Fighter {
     // 12. Lesões Ativas
     this.injuries = config.injuries || [];
 
-    // 13. Próxima Luta Agendada
+    // 13. Próxima Luta Agendada e Limite de 6 Lutas por Camp
     this.scheduledFight = null;
     this.rivals = [];
+    this.fightsInCurrentCamp = (config.fightsInCurrentCamp !== undefined) ? config.fightsInCurrentCamp : 0;
+    this.maxFightsPerCamp = 6; // Limite de 6 lutas por camp de 4 meses
   }
 
   // Retorna ano e quadrimestre atual da carreira
@@ -179,12 +181,20 @@ export class Fighter {
     return (this.careerCamps % 3) + 1;
   }
 
+  get careerMonths() {
+    return this.careerCamps * 4;
+  }
+
+  get month() {
+    return (this.careerCamps * 4) + 1;
+  }
+
   get currentCampName() {
     return CAMP_NAMES[this.campOfYear - 1] || 'Camp Geral';
   }
 
   get formattedSeason() {
-    return `Ano ${this.careerYear} • Camp ${this.campOfYear}/3 (${this.currentCampName})`;
+    return `Ano ${this.careerYear} • Camp ${this.campOfYear}/3 (${this.currentCampName}) • Lutas: ${this.fightsInCurrentCamp || 0}/${this.maxFightsPerCamp || 6}`;
   }
 
   // Define a fase da carreira baseada na idade e cartel
@@ -238,6 +248,9 @@ export class Fighter {
       }
     }
 
+    // Zera o contador de lutas para o novo camp de 4 meses
+    this.fightsInCurrentCamp = 0;
+
     this.careerPhase = this.calculateCareerPhase();
   }
 
@@ -265,6 +278,7 @@ export class Fighter {
   // Registra o resultado oficial de uma luta no cartel
   recordFightResult(fightData) {
     this.record.fights++;
+    this.fightsInCurrentCamp = (this.fightsInCurrentCamp || 0) + 1;
     const isWin = fightData.winner === 'player';
     const isLoss = fightData.winner === 'opponent';
     const isDraw = fightData.winner === 'draw';

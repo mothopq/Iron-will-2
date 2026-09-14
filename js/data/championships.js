@@ -2008,7 +2008,8 @@ export function generateChampionshipOffers(fighter, worldEngine) {
         modality: modId,
         tier: oppTier,
         rankTier: rankTier,
-        isTitleFight: tourn.isTitle
+        isTitleFight: tourn.isTitle,
+        category: tourn.category
       });
       if (opp) {
         opp.rounds = roundInfo.rounds;
@@ -2149,7 +2150,8 @@ export function generateChampionshipOffers(fighter, worldEngine) {
       opp = generateOpponent(f, {
         isCrossStyle: true,
         tier: cs.tier,
-        rankTier: cs.tier === 'MUNDIAL' ? 4 : cs.tier === 'ELITE' ? 12 : 25
+        rankTier: cs.tier === 'MUNDIAL' ? 4 : cs.tier === 'ELITE' ? 12 : 25,
+        category: 'luta_livre'
       });
       if (opp) {
         opp.rounds = csRounds;
@@ -2195,7 +2197,8 @@ export function generateChampionshipOffers(fighter, worldEngine) {
         modality: modId,
         tier: 'MUNDIAL',
         rankTier: Math.max(1, Math.min(5, f.ranking || 3)),
-        isTitleFight: true
+        isTitleFight: true,
+        category: 'olimpiadas'
       });
       if (oppOlympics) {
         oppOlympics.rounds = 3;

@@ -69,9 +69,12 @@ export class CreationWizard {
     const stepNames = ['QUEM É VOCÊ?', 'ESCOLHA SUA ARTE & ESTILO', 'ROUBE O DNA DAS LENDAS', 'SUA ORIGEM', 'CONFIRMAÇÃO'];
 
     return `
-      <div class="wizard-header-top-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 4px;">
+      <div class="wizard-header-top-bar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:0 4px; gap:8px; flex-wrap:wrap;">
         <span class="game-logo-badge" style="font-weight:800; font-size:0.85rem; color:var(--text-muted); letter-spacing:1px;">⚔️ IRON WILL: COMBAT LEGACY</span>
-        <button id="btnWizardTheme" class="btn btn-secondary btn-sm" style="border-radius:20px; font-size:0.8rem;" type="button">🎨 Cores & Tema</button>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <button id="btnWizardTheme" class="btn btn-secondary btn-sm" style="border-radius:20px; font-size:0.8rem; padding:5px 12px;" type="button">🎨 Cores & Tema</button>
+          <button id="btnWizardReset" class="btn btn-danger btn-sm" style="border-radius:20px; font-size:0.8rem; padding:5px 12px; background:#e63946; color:#fff;" type="button" title="Reiniciar do zero">🔄 Reiniciar</button>
+        </div>
       </div>
       <div class="wizard-nav-pills">
         ${pillsHtml}
@@ -119,6 +122,43 @@ export class CreationWizard {
         </div>
       </div>
     `;
+
+    // Garante que a tela sempre role para o topo no início de cada passo (evita ilusão de clique inerte)
+    try {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      if (container) container.scrollTop = 0;
+    } catch (err) {}
+
+    // Conecta eventos do header compartilhado (Cores & Reset)
+    const btnTheme = container.querySelector('#btnWizardTheme');
+    if (btnTheme) {
+      btnTheme.onclick = () => {
+        try { soundFX.playClick(); } catch(e){}
+        if (window.themeManager && typeof window.themeManager.openModal === 'function') {
+          window.themeManager.openModal();
+        }
+      };
+    }
+    const btnReset = container.querySelector('#btnWizardReset');
+    if (btnReset) {
+      btnReset.onclick = (e) => {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        try { soundFX.playClick(); } catch(e){}
+        if (window.viewsManager && typeof window.viewsManager.promptResetCareer === 'function') {
+          window.viewsManager.promptResetCareer();
+        } else if (typeof window.forceResetGame === 'function') {
+          window.forceResetGame();
+        } else {
+          try {
+            localStorage.clear();
+            sessionStorage.clear();
+          } catch(err){}
+          window.location.reload();
+        }
+      };
+    }
 
     // Conecta eventos da tela recém-gerada
     this.bindStepEvents(stepNum);
@@ -432,12 +472,18 @@ export class CreationWizard {
         ${this.renderStolenChips()}
       </div>
 
-      <div class="wizard-footer-actions">
+      <div class="wizard-footer-actions" style="display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap; align-items:center;">
         <button id="btnBackToStep2" class="btn-wizard-action secondary">← VOLTAR</button>
-        ${this.stolenCount >= this.stolenTarget ? 
-          `<button id="btnStep3Continue" class="btn-wizard-action primary">CONTINUAR →</button>` : 
-          `<button class="btn-wizard-action secondary" disabled>Herde mais ${remaining} atributos para avançar</button>`
-        }
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          ${this.stolenCount < this.stolenTarget ? `
+            <button id="btnAutoInheritRest" class="btn-wizard-action secondary" style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.5); color: #ffd166; font-weight:700;">
+              ⚡ Sortear Restantes (${remaining})
+            </button>
+          ` : ''}
+          <button id="btnStep3Continue" class="btn-wizard-action primary" style="background:#ffd166; color:#0d0f13; font-weight:800;">
+            ${this.stolenCount >= this.stolenTarget ? 'CONTINUAR →' : `CONTINUAR (${this.stolenCount}/${this.stolenTarget}) →`}
+          </button>
+        </div>
       </div>
     `;
   }
@@ -760,41 +806,47 @@ export class CreationWizard {
 
       const btnQuick = document.getElementById('btnQuickStart');
       if (btnQuick) {
-        btnQuick.onclick = () => {
-          soundFX.playCash();
-          this.draft.name = nameInput.value.trim() || 'Alexandre Silva';
-          this.draft.nickname = nickInput.value.trim() || 'O Fenômeno';
+        btnQuick.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playCash(); } catch(err){}
+          this.draft.name = (nameInput?.value || '').trim() || 'Alexandre Silva';
+          this.draft.nickname = (nickInput?.value || '').trim() || 'O Fenômeno';
           if (badgeCity && badgeCity.textContent) {
             this.draft.birthCity = badgeCity.textContent;
           }
           if (badgeState && badgeState.textContent) {
             this.draft.birthState = badgeState.textContent;
           }
+          // Garante que a modalidade padrão tenha atributos de DNA válidos
+          this.autoFillRemainingAttributes();
           if (this.onComplete) {
             this.onComplete(this.buildFinalFighterConfig());
           }
         };
       }
 
-      document.getElementById('btnStep1Continue').onclick = () => {
-        soundFX.playClick();
-        this.draft.name = nameInput.value.trim() || 'Alexandre Silva';
-        this.draft.nickname = nickInput.value.trim() || 'O Fenômeno';
-        
-        // Garante que a cidade e estado selecionados permaneçam consistentes
-        if (badgeCity && badgeCity.textContent) {
-          this.draft.birthCity = badgeCity.textContent;
-        }
-        if (badgeState && badgeState.textContent) {
-          this.draft.birthState = badgeState.textContent;
-        }
-        this.renderStep(2);
-      };
+      const btnStep1 = document.getElementById('btnStep1Continue');
+      if (btnStep1) {
+        btnStep1.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playClick(); } catch(err){}
+          this.draft.name = (nameInput?.value || '').trim() || 'Alexandre Silva';
+          this.draft.nickname = (nickInput?.value || '').trim() || 'O Fenômeno';
+          
+          if (badgeCity && badgeCity.textContent) {
+            this.draft.birthCity = badgeCity.textContent;
+          }
+          if (badgeState && badgeState.textContent) {
+            this.draft.birthState = badgeState.textContent;
+          }
+          this.renderStep(2);
+        };
+      }
     } else if (stepNum === 2) {
       // Pills de Modalidade
       document.querySelectorAll('.btn-modality-pill').forEach(btn => {
         btn.onclick = (e) => {
-          soundFX.playClick();
+          try { soundFX.playClick(); } catch(err){}
           const target = e.target.closest('.btn-modality-pill');
           if (!target) return;
           this.draft.modality = target.dataset.mod;
@@ -811,7 +863,7 @@ export class CreationWizard {
       // Seleção de Cards de Estilo
       document.querySelectorAll('.style-select-card').forEach(card => {
         card.onclick = (e) => {
-          soundFX.playClick();
+          try { soundFX.playClick(); } catch(err){}
           const target = e.target.closest('.style-select-card');
           if (!target) return;
           this.draft.styleId = target.dataset.style;
@@ -819,11 +871,17 @@ export class CreationWizard {
         };
       });
 
-      document.getElementById('btnBackToStep1').onclick = () => this.renderStep(1);
-      document.getElementById('btnStep2Continue').onclick = () => {
-        soundFX.playClick();
-        this.renderStep(3);
-      };
+      const btnBack1 = document.getElementById('btnBackToStep1');
+      if (btnBack1) btnBack1.onclick = () => this.renderStep(1);
+
+      const btnStep2 = document.getElementById('btnStep2Continue');
+      if (btnStep2) {
+        btnStep2.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playClick(); } catch(err){}
+          this.renderStep(3);
+        };
+      }
     } else if (stepNum === 3) {
       // Cartas de Atributo para Herdar
       document.querySelectorAll('.legend-attr-card').forEach(card => {
@@ -841,7 +899,7 @@ export class CreationWizard {
             return;
           }
 
-          soundFX.playClick();
+          try { soundFX.playClick(); } catch(err){}
           const score = Math.max(0, Math.min(100, parseInt(target.dataset.attrScore) || 70));
 
           // Registra atributo herdado diretamente na escala de Nível 0 a 100
@@ -856,38 +914,87 @@ export class CreationWizard {
         };
       });
 
-      document.getElementById('btnBackToStep2').onclick = () => this.renderStep(2);
-      const btnCont = document.getElementById('btnStep3Continue');
-      if (btnCont) {
-        btnCont.onclick = () => {
-          soundFX.playClick();
+      const btnBack2 = document.getElementById('btnBackToStep2');
+      if (btnBack2) btnBack2.onclick = () => this.renderStep(2);
+
+      const btnAuto = document.getElementById('btnAutoInheritRest');
+      if (btnAuto) {
+        btnAuto.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playCash(); } catch(err){}
+          this.autoFillRemainingAttributes();
+          this.renderStep(4);
+        };
+      }
+
+      const btnStep3 = document.getElementById('btnStep3Continue');
+      if (btnStep3) {
+        btnStep3.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playClick(); } catch(err){}
+          // Se ainda faltavam atributos para atingir a meta de 8, completa automaticamente para o jogador não travar
+          if (this.stolenCount < this.stolenTarget) {
+            this.autoFillRemainingAttributes();
+          }
           this.renderStep(4);
         };
       }
     } else if (stepNum === 4) {
       document.querySelectorAll('.story-select-card').forEach(card => {
         card.onclick = (e) => {
-          soundFX.playClick();
+          try { soundFX.playClick(); } catch(err){}
           document.querySelectorAll('.story-select-card').forEach(c => c.classList.remove('selected'));
           e.currentTarget.classList.add('selected');
           this.draft.storyId = e.currentTarget.dataset.story;
         };
       });
 
-      document.getElementById('btnBackToStep3').onclick = () => this.renderStep(3);
-      document.getElementById('btnStep4Continue').onclick = () => {
-        soundFX.playClick();
-        this.renderStep(5);
-      };
+      const btnBack3 = document.getElementById('btnBackToStep3');
+      if (btnBack3) btnBack3.onclick = () => this.renderStep(3);
+
+      const btnStep4 = document.getElementById('btnStep4Continue');
+      if (btnStep4) {
+        btnStep4.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playClick(); } catch(err){}
+          this.renderStep(5);
+        };
+      }
     } else if (stepNum === 5) {
-      document.getElementById('btnBackToStep4').onclick = () => this.renderStep(4);
-      document.getElementById('btnFinishAndLaunch').onclick = () => {
-        soundFX.playCash();
-        if (this.onComplete) {
-          this.onComplete(this.buildFinalFighterConfig());
-        }
-      };
+      const btnBack4 = document.getElementById('btnBackToStep4');
+      if (btnBack4) btnBack4.onclick = () => this.renderStep(4);
+
+      const btnFinish = document.getElementById('btnFinishAndLaunch');
+      if (btnFinish) {
+        btnFinish.onclick = (e) => {
+          if (e) { e.preventDefault(); e.stopPropagation(); }
+          try { soundFX.playCash(); } catch(err){}
+          if (this.onComplete) {
+            this.onComplete(this.buildFinalFighterConfig());
+          }
+        };
+      }
     }
+  }
+
+  // Preenche automaticamente atributos de DNA restantes com base nas lendas da modalidade
+  autoFillRemainingAttributes() {
+    const universal = UNIVERSAL_ATTRIBUTES;
+    const specific = MODALITY_SPECIFIC_ATTRIBUTES[this.draft.modality] || MODALITY_SPECIFIC_ATTRIBUTES.boxing;
+    const allAttrSlots = [...universal, ...specific];
+    const pool = (this.currentLegendPool && this.currentLegendPool.length > 0) 
+      ? this.currentLegendPool 
+      : (LEGENDS_BY_MODALITY[this.draft.modality] || LEGENDS_BY_MODALITY.boxing);
+
+    allAttrSlots.forEach((attr, idx) => {
+      if (this.stolenCount >= this.stolenTarget) return;
+      if (this.draft.stolenAttributes[attr.id] === undefined) {
+        const legend = pool[(this.currentLegendIndex + idx) % pool.length];
+        const score = Math.max(65, Math.min(99, Math.round(legend.stats[attr.id] || 75)));
+        this.draft.stolenAttributes[attr.id] = score;
+        this.stolenCount++;
+      }
+    });
   }
 
   // Constrói a configuração final com atributos e tetos genéticos de DNA herdados das lendas

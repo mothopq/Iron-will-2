@@ -8,10 +8,10 @@ import { GYMS, EQUIPMENT } from '../data/gyms.js';
 import { JOBS, HOUSING, AVAILABLE_SPONSORS } from '../systems/lifeEngine.js';
 import { TRAINING_ACTIVITIES, getActivitiesForModality } from '../systems/trainingEngine.js';
 import { generateOpponent } from '../models/OpponentGenerator.js';
-import { CombatEngine } from '../systems/combatEngine.js?v=20260913_fix_v5';
-import { CombatUI } from './combatUI.js?v=20260913_fix_v5';
+import { CombatEngine } from '../systems/combatEngine.js';
+import { CombatUI } from './combatUI.js';
 import { getEligibleRandomEvent } from '../data/events.js';
-import { CreationWizard } from '../creationWizard.js?v=20260913_fix_v5';
+import { CreationWizard } from '../creationWizard.js';
 import { getSkillTier } from '../models/Fighter.js';
 import { generateChampionshipOffers, isOlympicYear, getYearsToNextOlympics } from '../data/championships.js';
 import { getStarterMovesForModality, getShopMoves, getMoveById } from '../data/movesData.js';
@@ -65,12 +65,84 @@ export class ViewsManager {
       });
     });
 
+    // Navegação Mobile (Bottom Navigation Bar)
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item[data-tab]');
+    mobileNavItems.forEach(item => {
+      item.addEventListener('click', (e) => {
+        soundFX.playClick();
+        const tab = e.currentTarget.dataset.tab;
+        this.switchTab(tab);
+      });
+    });
+
+    // Drawer "Mais" Mobile
+    const btnMore = document.getElementById('btnMobileMoreTabs');
+    const drawer = document.getElementById('mobileMoreDrawer');
+    const btnCloseDrawer = document.getElementById('btnCloseDrawer');
+    const backdrop = document.getElementById('drawerBackdrop');
+
+    if (btnMore && drawer) {
+      btnMore.addEventListener('click', () => {
+        soundFX.playClick();
+        drawer.classList.remove('hidden');
+      });
+    }
+
+    const closeDrawer = () => {
+      if (drawer) drawer.classList.add('hidden');
+    };
+
+    if (btnCloseDrawer) btnCloseDrawer.addEventListener('click', closeDrawer);
+    if (backdrop) backdrop.addEventListener('click', closeDrawer);
+
+    // Itens de Abas dentro do Drawer Mobile
+    const drawerTabs = document.querySelectorAll('.drawer-item[data-tab]');
+    drawerTabs.forEach(item => {
+      item.addEventListener('click', (e) => {
+        soundFX.playClick();
+        closeDrawer();
+        const tab = e.currentTarget.dataset.tab;
+        this.switchTab(tab);
+      });
+    });
+
+    // Ações Extras do Drawer Mobile
+    const btnDrawerTheme = document.getElementById('btnDrawerTheme');
+    if (btnDrawerTheme) {
+      btnDrawerTheme.addEventListener('click', () => {
+        soundFX.playClick();
+        closeDrawer();
+        if (window.themeManager && typeof window.themeManager.openModal === 'function') {
+          window.themeManager.openModal();
+        }
+      });
+    }
+
+    const btnDrawerMute = document.getElementById('btnDrawerMute');
+    const txtDrawerMute = document.getElementById('txtDrawerMute');
+    if (btnDrawerMute) {
+      btnDrawerMute.addEventListener('click', () => {
+        const isMuted = soundFX.toggleMute();
+        if (txtDrawerMute) txtDrawerMute.textContent = isMuted ? 'Áudio Desligado' : 'Áudio Ligado';
+        if (muteBtn) muteBtn.textContent = isMuted ? '🔇 Áudio Desligado' : '🔊 Áudio Ligado';
+      });
+    }
+
+    const btnDrawerReset = document.getElementById('btnDrawerReset');
+    if (btnDrawerReset) {
+      btnDrawerReset.addEventListener('click', () => {
+        closeDrawer();
+        this.promptResetCareer();
+      });
+    }
+
     // Botão de Áudio (Mute/Unmute)
     const muteBtn = document.getElementById('btnToggleMute');
     if (muteBtn) {
       muteBtn.addEventListener('click', () => {
         const isMuted = soundFX.toggleMute();
         muteBtn.textContent = isMuted ? '🔇 Áudio Desligado' : '🔊 Áudio Ligado';
+        if (txtDrawerMute) txtDrawerMute.textContent = isMuted ? 'Áudio Desligado' : 'Áudio Ligado';
       });
     }
 
@@ -89,6 +161,10 @@ export class ViewsManager {
         this.promptResetCareer();
       });
     }
+
+    // Expõe globalmente para acesso rápido no console ou scripts
+    window.resetCareer = () => this.promptResetCareer();
+    window.resetGame = () => this.promptResetCareer();
   }
 
   // Modal estético in-game para confirmação segura de reinício de carreira
@@ -97,12 +173,58 @@ export class ViewsManager {
     const modal = document.getElementById('gameGeneralModal');
     const modalContent = document.getElementById('gameModalContent');
 
-    if (!modal || !modalContent) {
-      if (confirm('Tem certeza absoluta que deseja reiniciar sua carreira? Todo o progresso será perdido!')) {
-        gameState.resetGame();
+    const executeResetNow = () => {
+      try {
+        if (soundFX && typeof soundFX.playHeavyHit === 'function') {
+          soundFX.playHeavyHit();
+        } else if (soundFX && typeof soundFX.playClick === 'function') {
+          soundFX.playClick();
+        }
+      } catch (e) {}
+
+      try {
+        if (gameState && typeof gameState.resetGame === 'function') {
+          gameState.resetGame();
+        }
+        if (window.gameState && typeof window.gameState.resetGame === 'function') {
+          window.gameState.resetGame();
+        }
         localStorage.removeItem('iron_will_combat_legacy_save');
-        window.location.reload();
+        localStorage.clear();
+        sessionStorage.clear();
+      } catch (e) {
+        console.warn('Erro ao limpar storage no reset:', e);
       }
+
+      if (modal) modal.classList.add('hidden');
+
+      // Reseta imediatamente a interface do usuário para a tela de criação do início
+      try {
+        const mainApp = document.getElementById('mainAppContainer');
+        const creation = document.getElementById('creationScreen');
+        if (mainApp) mainApp.classList.add('hidden');
+        if (creation) {
+          creation.classList.remove('hidden');
+          creation.innerHTML = '';
+        }
+        this.initCreationScreen();
+      } catch (e) {
+        console.warn('Erro ao resetar interface na memória:', e);
+      }
+
+      // E recarrega a página de forma limpa para garantir estado novo
+      setTimeout(() => {
+        try {
+          const cleanUrl = window.location.href.split('?')[0].split('#')[0];
+          window.location.replace(cleanUrl + '?reset=' + Date.now());
+        } catch (e) {
+          window.location.reload();
+        }
+      }, 60);
+    };
+
+    if (!modal || !modalContent) {
+      executeResetNow();
       return;
     }
 
@@ -113,17 +235,17 @@ export class ViewsManager {
           REINICIAR CARREIRA DO ZERO?
         </h2>
         <p style="color:var(--text-muted); font-size:0.95rem; line-height:1.5; margin-bottom:16px;">
-          Tem certeza absoluta que deseja apagar o progresso do seu lutador atual?<br>
-          <strong style="color:var(--text-main);">Seu atleta, cartel, cinturões, saldo bancário e histórico de lutas serão apagados definitivamente.</strong>
+          Tem certeza absoluta que deseja apagar todos os dados e recomeçar do zero?<br>
+          <strong style="color:var(--text-main);">Seu atleta, cartel, cinturões, dinheiro e histórico serão apagados definitivamente.</strong>
         </p>
         <p style="font-size:0.85rem; color:#f87171; margin-bottom:22px;">
-          ⚡ Após confirmar, a página será reiniciada e você irá direto para a tela de criação de um novo lutador.
+          ⚡ Você irá direto para a tela de criação de um novo lutador.
         </p>
         <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-          <button id="btnConfirmResetYes" class="btn btn-primary" style="background:#e63946; border-color:#ff4d5a; padding:10px 24px; font-weight:800; font-size:0.95rem;">
+          <button id="btnConfirmResetYes" class="btn btn-primary" style="background:#e63946; border-color:#ff4d5a; padding:12px 24px; font-weight:800; font-size:0.95rem; cursor:pointer;">
             🚨 Sim, Apagar e Reiniciar
           </button>
-          <button id="btnConfirmResetNo" class="btn btn-secondary" style="padding:10px 24px; font-size:0.95rem;">
+          <button id="btnConfirmResetNo" class="btn btn-secondary" style="padding:12px 24px; font-size:0.95rem; cursor:pointer;">
             ✕ Cancelar e Continuar Jogando
           </button>
         </div>
@@ -136,18 +258,22 @@ export class ViewsManager {
     const btnNo = modalContent.querySelector('#btnConfirmResetNo');
 
     if (btnYes) {
-      btnYes.onclick = () => {
-        soundFX.playPunch();
-        modal.classList.add('hidden');
-        gameState.resetGame();
-        localStorage.removeItem('iron_will_combat_legacy_save');
-        window.location.reload();
+      btnYes.onclick = (e) => {
+        if (e && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        executeResetNow();
       };
     }
 
     if (btnNo) {
-      btnNo.onclick = () => {
-        soundFX.playClick();
+      btnNo.onclick = (e) => {
+        if (e && typeof e.preventDefault === 'function') {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+        try { soundFX.playClick(); } catch(err){}
         modal.classList.add('hidden');
       };
     }
@@ -161,6 +287,12 @@ export class ViewsManager {
     const navButtons = document.querySelectorAll('.nav-tab-btn');
     navButtons.forEach(btn => {
       btn.classList.toggle('active', btn.dataset.tab === tabName);
+    });
+
+    // Sincroniza abas da barra inferior mobile
+    const mobileNavItems = document.querySelectorAll('.mobile-nav-item[data-tab]');
+    mobileNavItems.forEach(item => {
+      item.classList.toggle('active', item.dataset.tab === tabName);
     });
 
     const target = document.getElementById(`view-${tabName}`);
@@ -454,13 +586,38 @@ export class ViewsManager {
         });
       };
     } else {
-      nextCard.innerHTML = `
-        <div class="empty-schedule-card">
-          <p>Você não tem nenhuma luta marcada no camp atual de 4 meses.</p>
-          <button class="btn btn-secondary" id="btnGoToFightOffers">Ver Ofertas de Contrato Disponíveis</button>
-        </div>
-      `;
-      document.getElementById('btnGoToFightOffers').onclick = () => this.switchTab('lutas');
+      const curFights = f.fightsInCurrentCamp || 0;
+      const maxF = f.maxFightsPerCamp || 6;
+      if (curFights >= maxF) {
+        nextCard.innerHTML = `
+          <div class="empty-schedule-card" style="border:2px solid #22c55e; background:rgba(34, 197, 94, 0.08); text-align:center; padding:18px;">
+            <div style="font-size:2rem; margin-bottom:4px;">🎉</div>
+            <h4 style="color:#22c55e; margin:0 0 6px 0; font-size:1.15rem;">CAMP CONCLUÍDO COM SUCESSO! (${curFights}/${maxF} LUTAS)</h4>
+            <p style="color:#cbd5e1; font-size:0.88rem; margin:0 0 14px 0;">Você já completou o limite de ${maxF} lutas programadas para este camp. O calendário agora está liberado para avançar 4 meses para a próxima temporada!</p>
+            <button class="btn btn-success btn-pulse" id="btnAdvanceCampFromDashboard" style="padding:10px 20px; font-weight:800; font-size:0.95rem;">
+              ⏩ Concluir Camp & Avançar 4 Meses
+            </button>
+          </div>
+        `;
+        const btnAdv = document.getElementById('btnAdvanceCampFromDashboard');
+        if (btnAdv) {
+          btnAdv.onclick = () => {
+            soundFX.playClick();
+            this.advanceCalendarCamp();
+          };
+        }
+      } else {
+        nextCard.innerHTML = `
+          <div class="empty-schedule-card">
+            <div style="display:inline-block; padding:4px 10px; border-radius:6px; background:rgba(56, 189, 248, 0.12); color:#38bdf8; font-weight:700; font-size:0.82rem; margin-bottom:8px;">
+              🥊 Lutas no Camp: ${curFights} / ${maxF} (Faltam ${maxF - curFights} para avançar os meses)
+            </div>
+            <p>Você não tem nenhuma luta marcada no camp atual de 4 meses.</p>
+            <button class="btn btn-secondary" id="btnGoToFightOffers">Ver Ofertas de Contrato Disponíveis</button>
+          </div>
+        `;
+        document.getElementById('btnGoToFightOffers').onclick = () => this.switchTab('lutas');
+      }
     }
 
     // Painel de Habilidades Principais (Escala Nível 0 a 100)
@@ -545,7 +702,15 @@ export class ViewsManager {
     // Botão de Avançar Camp de 4 Meses
     const btnAdvance = document.getElementById('btnAdvanceWeekOnly');
     if (btnAdvance) {
-      btnAdvance.textContent = '⏩ Avançar Camp / Temporada (4 Meses)';
+      const curFights = f.fightsInCurrentCamp || 0;
+      const maxF = f.maxFightsPerCamp || 6;
+      if (curFights >= maxF) {
+        btnAdvance.className = 'btn btn-success btn-pulse';
+        btnAdvance.textContent = `⏩ Concluir Camp (${curFights}/${maxF}) • Avançar 4 Meses`;
+      } else {
+        btnAdvance.className = 'btn btn-secondary';
+        btnAdvance.textContent = `⏩ Avançar Camp (${curFights}/${maxF} Lutas Feitas)`;
+      }
       btnAdvance.onclick = () => {
         soundFX.playClick();
         this.advanceCalendarCamp();
@@ -567,6 +732,51 @@ export class ViewsManager {
   // Avança um ciclo de 4 Meses (Camp / Quadrimestre) no calendário
   advanceCalendarCamp() {
     const f = gameState.fighter;
+    const maxFights = f.maxFightsPerCamp || 6;
+    const currentFights = f.fightsInCurrentCamp || 0;
+
+    // Regra mandatória: Limite de 6 lutas por camp; os meses NÃO avançam se não cumprir o limite!
+    if (currentFights < maxFights) {
+      const remaining = maxFights - currentFights;
+      try { soundFX.playClick(); } catch(e){}
+      const modal = document.getElementById('gameGeneralModal');
+      const content = document.getElementById('gameModalContent');
+      if (modal && content) {
+        content.innerHTML = `
+          <div style="text-align:center; padding:12px 6px;">
+            <div style="font-size:3rem; margin-bottom:8px;">⚠️</div>
+            <h3 style="color:#ef4444; margin-bottom:8px; font-size:1.3rem;">CRONOGRAMA DO CAMP INCOMPLETO!</h3>
+            <p style="color:#cbd5e1; font-size:0.95rem; line-height:1.5; margin-bottom:14px;">
+              Cada camp é programado para <strong>${maxFights} lutas oficiais</strong> ao longo do ciclo de 4 meses.<br>
+              Você disputou <strong>${currentFights} de ${maxFights} lutas</strong> (faltam <strong>${remaining}</strong> luta${remaining > 1 ? 's' : ''}).
+            </p>
+            <div style="background:rgba(239, 68, 68, 0.12); border:1px solid rgba(239, 68, 68, 0.35); border-radius:10px; padding:12px; margin-bottom:18px; color:#fca5a5; font-size:0.9rem; text-align:left;">
+              <strong>📅 Regra do Calendário:</strong> Os meses só avançam após você disputar as ${maxFights} lutas programadas deste camp. Vá até a aba <strong>Lutas</strong> e dispute os combates restantes!
+            </div>
+            <div style="display:flex; gap:10px; justify-content:center;">
+              <button class="btn btn-primary" id="btnGoToLutasFromCampAlert" style="font-size:1rem; font-weight:800; padding:12px 20px;">
+                🥊 Ir para Ofertas de Luta (${currentFights}/${maxFights})
+              </button>
+              <button class="btn btn-secondary" id="btnCloseCampAlert" style="padding:12px 18px;">
+                Fechar
+              </button>
+            </div>
+          </div>
+        `;
+        modal.classList.remove('hidden');
+        document.getElementById('btnGoToLutasFromCampAlert').onclick = () => {
+          modal.classList.add('hidden');
+          this.switchTab('lutas');
+        };
+        document.getElementById('btnCloseCampAlert').onclick = () => {
+          modal.classList.add('hidden');
+        };
+      } else {
+        alert(`Você disputou ${currentFights} de ${maxFights} lutas. É necessário completar as ${maxFights} lutas do camp para que os meses avancem! Faltam ${remaining} luta(s).`);
+      }
+      return;
+    }
+
     const oldAge = f.age;
 
     // Avança relógio do lutador (1 Camp = 4 Meses)
@@ -1013,19 +1223,76 @@ export class ViewsManager {
       return;
     }
 
-    // 4. Gera ofertas de campeonatos completos
+    // 4. Verificação de Teto de 6 Lutas por Camp
+    const curFights = f.fightsInCurrentCamp || 0;
+    const maxF = f.maxFightsPerCamp || 6;
+    if (!f.scheduledFight && curFights >= maxF) {
+      container.innerHTML = `
+        <div class="empty-schedule-card" style="grid-column: 1 / -1; border:2px solid #22c55e; background:rgba(34, 197, 94, 0.08); text-align:center; padding:30px 20px;">
+          <div style="font-size:3rem; margin-bottom:10px;">🏆</div>
+          <h2 style="color:#22c55e; margin:0 0 8px 0; font-size:1.5rem;">LIMITE DE 6 LUTAS DO CAMP ATINGIDO!</h2>
+          <p style="color:#e2e8f0; font-size:1rem; max-width:600px; margin:0 auto 16px auto; line-height:1.5;">
+            Parabéns! Você completou com sucesso todas as <strong>6 lutas programadas</strong> para este ciclo de 4 meses.<br>
+            O calendário da carreira agora está liberado para avançar os 4 meses e iniciar a nova temporada de treinamentos e combates.
+          </p>
+          <button class="btn btn-success btn-pulse" id="btnAdvanceCampFromLutasScreen" style="padding:14px 32px; font-size:1.1rem; font-weight:800;">
+            ⏩ Concluir Camp & Avançar 4 Meses
+          </button>
+        </div>
+      `;
+      const btnAdv = document.getElementById('btnAdvanceCampFromLutasScreen');
+      if (btnAdv) {
+        btnAdv.onclick = () => {
+          soundFX.playClick();
+          this.advanceCalendarCamp();
+        };
+      }
+      return;
+    }
+
+    // Banner de Indicador de Progresso das 6 Lutas no Camp Atual
+    const progressCard = document.createElement('div');
+    progressCard.className = 'camp-progress-bar-card';
+    progressCard.style.cssText = 'grid-column: 1 / -1; margin-bottom:14px; background:rgba(15, 23, 42, 0.85); border:1px solid rgba(56, 189, 248, 0.35); border-radius:12px; padding:14px 18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;';
+    progressCard.innerHTML = `
+      <div>
+        <div style="font-size:0.75rem; font-weight:800; color:#38bdf8; letter-spacing:1px; text-transform:uppercase;">
+          📅 CRONOGRAMA DA TEMPORADA • QUADRIMESTRE ATUAL (4 MESES)
+        </div>
+        <div style="font-size:1.15rem; font-weight:800; color:#fff; margin:2px 0;">
+          Lutas Disputadas neste Camp: <span style="color:#ffd166;">${curFights} de ${maxF}</span>
+        </div>
+        <div style="font-size:0.84rem; color:#94a3b8;">
+          ${curFights >= maxF 
+            ? '<span style="color:#22c55e; font-weight:bold;">✓ Limite de 6 lutas cumprido! Calendário liberado para avançar os meses.</span>' 
+            : `Restam <strong>${maxF - curFights} luta(s)</strong> para cumprir o limite do camp e liberar o avanço dos meses.`}
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:6px;">
+        ${[1, 2, 3, 4, 5, 6].map(num => `
+          <div style="width:30px; height:30px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:0.8rem; background:${num <= curFights ? '#22c55e' : 'rgba(255,255,255,0.06)'}; color:${num <= curFights ? '#000' : '#64748b'}; border:1px solid ${num <= curFights ? '#22c55e' : 'rgba(255,255,255,0.15)'};" title="Luta ${num} do Camp">
+            ${num <= curFights ? '✓' : num}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    container.appendChild(progressCard);
+
+    // 5. Gera ofertas de campeonatos completos
     const allOffers = generateChampionshipOffers(f, gameState.worldEngine);
     const filteredOffers = this.selectedChampionshipFilter === 'all'
       ? allOffers
       : allOffers.filter(o => o.category === this.selectedChampionshipFilter);
 
     if (filteredOffers.length === 0) {
-      container.innerHTML = `
-        <div class="empty-schedule-card" style="grid-column: 1 / -1;">
-          <p>Nenhuma oferta disponível para a categoria selecionada neste camp.</p>
-          <button class="btn btn-secondary" id="btnResetFilterOffers">Mostrar Todos os Campeonatos</button>
-        </div>
+      const emptyMsg = document.createElement('div');
+      emptyMsg.className = 'empty-schedule-card';
+      emptyMsg.style.gridColumn = '1 / -1';
+      emptyMsg.innerHTML = `
+        <p>Nenhuma oferta disponível para a categoria selecionada neste camp.</p>
+        <button class="btn btn-secondary" id="btnResetFilterOffers">Mostrar Todos os Campeonatos</button>
       `;
+      container.appendChild(emptyMsg);
       document.getElementById('btnResetFilterOffers').onclick = () => {
         this.selectedChampionshipFilter = 'all';
         this.renderLutasView();
@@ -1136,9 +1403,10 @@ export class ViewsManager {
             
             <div class="opp-info-grid">
               <div>Cartel: <strong>${offer.opp.record.wins}V - ${offer.opp.record.losses}D - ${offer.opp.record.draws}E</strong></div>
-              <div>Idade: <strong>${offer.opp.age} anos</strong> (${offer.opp.nationality})</div>
+              <div>Origem: <strong>${offer.opp.originDisplay || offer.opp.nationality}</strong></div>
+              <div>Idade: <strong>${offer.opp.age} anos</strong></div>
               <div>Estilo: <strong>${offer.opp.style}</strong></div>
-              <div>Perfil: <strong>${offer.opp.personality}</strong></div>
+              <div style="grid-column: 1 / -1;">Perfil: <strong>${offer.opp.personality}</strong></div>
             </div>
 
             <div class="opp-strength-box">
@@ -1164,6 +1432,10 @@ export class ViewsManager {
         `;
 
         card.querySelector('.btn-sign-contract').onclick = () => {
+          if ((f.fightsInCurrentCamp || 0) >= (f.maxFightsPerCamp || 6)) {
+            alert('Você já completou o limite de 6 lutas deste camp! Avance a temporada (4 meses) para iniciar o próximo ciclo de lutas.');
+            return;
+          }
           soundFX.playCash();
           f.scheduledFight = {
             opponent: offer.opp,
@@ -1365,6 +1637,25 @@ export class ViewsManager {
       `;
     }
 
+    // Status do Camp Atual (Limite de 6 Lutas)
+    const curFights = f.fightsInCurrentCamp || 0;
+    const maxF = f.maxFightsPerCamp || 6;
+    let campStatusHtml = '';
+    if (curFights >= maxF) {
+      campStatusHtml = `
+        <div class="alert-status safe" style="margin:12px 0; background:rgba(34, 197, 94, 0.15); border:1px solid #22c55e; color:#86efac; padding:12px 14px; border-radius:10px; text-align:left;">
+          🎯 <strong>LIMITE DE 6 LUTAS DO CAMP ATINGIDO (${curFights}/${maxF})!</strong><br>
+          <span style="font-size:0.86rem; color:#cbd5e1;">Você completou todos os combates programados para este quadrimestre. O calendário agora está pronto para avançar os 4 meses da temporada!</span>
+        </div>
+      `;
+    } else {
+      campStatusHtml = `
+        <div style="margin:10px 0; padding:10px 14px; background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.3); border-radius:10px; font-size:0.88rem; color:#bae6fd; text-align:left;">
+          🥊 <strong>Cronograma do Camp:</strong> ${curFights} de ${maxF} lutas realizadas (restam <strong>${maxF - curFights}</strong> para liberar o avanço dos meses).
+        </div>
+      `;
+    }
+
     // Exibe modal de glória/derrota
     const modal = document.getElementById('gameGeneralModal');
     const content = document.getElementById('gameModalContent');
@@ -1378,10 +1669,18 @@ export class ViewsManager {
         <p>Bolsa Recebida: <strong class="text-gold">+$${summary.purseEarned.toLocaleString()}</strong></p>
         <p>Evolução de Fama: +${Math.round(f.fame)}</p>
         ${rewardsBadgeHtml}
+        ${campStatusHtml}
       </div>
-      <div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
-        <button class="btn btn-secondary" id="btnGoToShopAfterFight">🥋 Ir à Loja de Golpes</button>
-        <button class="btn btn-primary" id="btnReturnToDashboard">Painel de Carreira</button>
+      <div style="display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:16px;">
+        <button class="btn btn-secondary" id="btnGoToShopAfterFight">🥋 Loja de Golpes</button>
+        ${curFights >= maxF ? `
+          <button class="btn btn-success btn-pulse" id="btnAdvanceCampFromFightModal" style="font-weight:800;">
+            ⏩ Concluir Camp & Avançar 4 Meses
+          </button>
+        ` : `
+          <button class="btn btn-primary" id="btnGoToLutasAfterFight">🥊 Próxima Luta (${curFights}/${maxF})</button>
+        `}
+        <button class="btn btn-secondary" id="btnReturnToDashboard">Painel</button>
       </div>
     `;
 
@@ -1392,6 +1691,22 @@ export class ViewsManager {
       btnShop.onclick = () => {
         modal.classList.add('hidden');
         this.switchTab('golpes');
+      };
+    }
+
+    const btnNextFight = document.getElementById('btnGoToLutasAfterFight');
+    if (btnNextFight) {
+      btnNextFight.onclick = () => {
+        modal.classList.add('hidden');
+        this.switchTab('lutas');
+      };
+    }
+
+    const btnAdvCamp = document.getElementById('btnAdvanceCampFromFightModal');
+    if (btnAdvCamp) {
+      btnAdvCamp.onclick = () => {
+        modal.classList.add('hidden');
+        this.advanceCalendarCamp();
       };
     }
 

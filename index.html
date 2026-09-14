@@ -2,7 +2,10 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#07080b">
   <title>Iron Will: Combat Legacy | Simulador de Carreira de Lutador</title>
   <meta name="description" content="Simulador e gestor completo de carreira de esportes de combate. Crie seu lutador do zero, treine, evolua atributos, viva a rotina de atleta e lute pelo cinturão mundial!">
   <link rel="stylesheet" href="css/main.css">
@@ -10,6 +13,7 @@
   <link rel="stylesheet" href="css/combat.css">
   <link rel="stylesheet" href="css/views.css">
   <link rel="stylesheet" href="css/wizard.css">
+  <link rel="stylesheet" href="css/mobile.css?v=20260913_mobile_v1">
   <script>
     // Monitor de Segurança & Auto-Recuperação
     window.__simErrors = [];
@@ -517,6 +521,77 @@
       </section>
 
     </main>
+    
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR MOBILE (Estilo App Nativo) -->
+    <nav class="mobile-bottom-nav">
+      <button class="mobile-nav-item active" data-tab="carreira">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Carreira</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="lutas">
+        <span class="nav-icon">🥊</span>
+        <span class="nav-label">Lutas</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="academia">
+        <span class="nav-icon">🏟️</span>
+        <span class="nav-label">Treino</span>
+      </button>
+      <button class="mobile-nav-item" data-tab="golpes">
+        <span class="nav-icon">🥋</span>
+        <span class="nav-label">Golpes</span>
+      </button>
+      <button class="mobile-nav-item" id="btnMobileMoreTabs">
+        <span class="nav-icon">☰</span>
+        <span class="nav-label">Mais</span>
+      </button>
+    </nav>
+
+    <!-- DRAWER / MENU INFERIOR DE ABAS EXTRAS PARA MOBILE -->
+    <div id="mobileMoreDrawer" class="mobile-more-drawer hidden">
+      <div class="drawer-backdrop" id="drawerBackdrop"></div>
+      <div class="drawer-content">
+        <div class="drawer-handle"></div>
+        <div class="drawer-header">
+          <h3>Menu & Gerenciamento</h3>
+          <button class="btn-close-drawer" id="btnCloseDrawer">✕</button>
+        </div>
+        <div class="drawer-grid">
+          <button class="drawer-item" data-tab="atributos">
+            <span class="drawer-icon">📈</span>
+            <span>Atributos & DNA</span>
+          </button>
+          <button class="drawer-item" data-tab="ranking">
+            <span class="drawer-icon">🏆</span>
+            <span>Ranking Mundial</span>
+          </button>
+          <button class="drawer-item" data-tab="vida">
+            <span class="drawer-icon">👤</span>
+            <span>Vida & Redes</span>
+          </button>
+          <button class="drawer-item" data-tab="coletiva">
+            <span class="drawer-icon">🎙️</span>
+            <span>Coletiva Imprensa</span>
+          </button>
+          <button class="drawer-item" data-tab="historico">
+            <span class="drawer-icon">📜</span>
+            <span>Histórico Lutas</span>
+          </button>
+          <button class="drawer-item" id="btnDrawerTheme">
+            <span class="drawer-icon">🎨</span>
+            <span>Personalizar Cores</span>
+          </button>
+          <button class="drawer-item" id="btnDrawerMute">
+            <span class="drawer-icon">🔊</span>
+            <span id="txtDrawerMute">Áudio / Som</span>
+          </button>
+          <button class="drawer-item drawer-item-danger" id="btnDrawerReset">
+            <span class="drawer-icon">🔄</span>
+            <span>Reiniciar Carreira (Reset)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <!-- Modal Geral de Dilemas, Resumos e Fim de Luta -->
@@ -545,6 +620,7 @@
   </div>
 
   <!-- Scripts do Jogo (ES6 Modules) -->
-  <script type="module" src="js/main.js?v=20260913_fix_v5"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
+

@@ -1,0 +1,632 @@
+/* mobile.css - Estilos responsivos e interface otimizada para smartphones e tablets */
+
+/* Suporte a Notch e Safe Areas */
+:root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+}
+
+/* ============================================================ */
+/* 1. BOTTOM NAVIGATION BAR & DRAWER (PADRÃO APP MOBILE NATIVO) */
+/* ============================================================ */
+.mobile-bottom-nav {
+  display: none; /* Oculto no desktop por padrão */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: calc(58px + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  background: rgba(12, 15, 22, 0.95);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-top: 1px solid var(--border-subtle);
+  z-index: 1000;
+  align-items: center;
+  justify-content: space-around;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.8);
+}
+
+.mobile-nav-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 4px 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-nav-item .nav-icon {
+  font-size: 1.25rem;
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav-item.active {
+  color: var(--primary);
+}
+
+.mobile-nav-item.active .nav-icon {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 8px var(--primary-glow));
+}
+
+/* Drawer / Bottom Sheet para abas adicionais */
+.mobile-more-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  opacity: 1;
+  transition: opacity 0.25s ease;
+}
+
+.mobile-more-drawer.hidden {
+  display: none !important;
+}
+
+.drawer-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+}
+
+.drawer-content {
+  position: relative;
+  background: #11141c;
+  border-top: 2px solid var(--primary);
+  border-radius: 20px 20px 0 0;
+  padding: 16px 20px calc(24px + var(--safe-bottom)) 20px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.9);
+  animation: slideUpDrawer 0.25s ease-out;
+}
+
+@keyframes slideUpDrawer {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.drawer-handle {
+  width: 44px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  margin: 0 auto 14px auto;
+}
+
+.drawer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.drawer-header h3 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: var(--text-main);
+  text-transform: uppercase;
+}
+
+.btn-close-drawer {
+  background: rgba(255, 255, 255, 0.08);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--text-main);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawer-item:hover, .drawer-item:active {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--primary);
+}
+
+.drawer-item .drawer-icon {
+  font-size: 1.25rem;
+}
+
+.drawer-item-danger {
+  grid-column: span 2;
+  background: rgba(230, 57, 70, 0.15) !important;
+  border-color: rgba(230, 57, 70, 0.5) !important;
+  color: #ff85a1 !important;
+  justify-content: center;
+  font-weight: 800;
+}
+
+/* ============================================================ */
+/* 2. MEDIA QUERIES PARA MOBILE & TABLET (max-width: 768px)     */
+/* ============================================================ */
+@media (max-width: 768px) {
+
+  /* Exibe a barra de navegação inferior no mobile */
+  .mobile-bottom-nav {
+    display: flex !important;
+  }
+
+  /* Padding inferior na área de conteúdo para não tampar botões */
+  .main-content-area {
+    padding: 12px 12px calc(76px + var(--safe-bottom)) 12px !important;
+    margin: 6px auto !important;
+  }
+
+  /* HUD Superior Mobile */
+  .top-hud-header {
+    padding: 10px 12px !important;
+  }
+
+  .hud-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    align-items: stretch !important;
+  }
+
+  /* Linha Superior do HUD: Nome, Ranking e Ações Rápidas */
+  .hud-fighter-block {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding-bottom: 6px;
+  }
+
+  .hud-fighter-block h2 {
+    font-size: 1.1rem !important;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+  }
+
+  .hud-fighter-block p {
+    font-size: 0.75rem !important;
+  }
+
+  .hud-actions-block {
+    display: flex !important;
+    gap: 6px !important;
+  }
+
+  .hud-actions-block .btn {
+    padding: 5px 9px !important;
+    font-size: 0.75rem !important;
+    border-radius: 6px !important;
+  }
+
+  /* Métricas em Linha com Rolagem Suave ou Mini-Grid */
+  .hud-metrics-row {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 6px !important;
+    padding: 4px 0 !important;
+  }
+
+  .hud-metric-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 6px;
+    padding: 4px 6px;
+  }
+
+  .hud-metric-item .metric-label {
+    font-size: 0.62rem !important;
+    white-space: nowrap;
+  }
+
+  .hud-metric-item .metric-val {
+    font-size: 0.85rem !important;
+  }
+
+  .hud-energy-bar-wrap {
+    width: 100% !important;
+    height: 5px !important;
+  }
+
+  /* Banner de Próxima Luta */
+  .hud-fight-banner {
+    font-size: 0.78rem !important;
+    padding: 6px 10px !important;
+    margin-top: 4px !important;
+  }
+
+  /* Barra de Navegação Superior: Rolagem Horizontal Suave */
+  .app-nav-bar {
+    display: flex !important;
+    background: #0d1017 !important;
+    border-bottom: 1px solid var(--border-subtle) !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .app-nav-bar::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .nav-container {
+    display: flex !important;
+    padding: 0 6px !important;
+    gap: 4px !important;
+  }
+
+  .nav-tab-btn {
+    font-size: 0.78rem !important;
+    padding: 10px 12px !important;
+    white-space: nowrap !important;
+    border-bottom-width: 2px !important;
+  }
+
+  /* ============================================================ */
+  /* 3. WIZARD DE CRIAÇÃO MOBILE                                  */
+  /* ============================================================ */
+  .wizard-container {
+    margin: 8px auto calc(60px + var(--safe-bottom)) auto !important;
+    padding: 16px 14px !important;
+    border-radius: 14px !important;
+    width: 96% !important;
+  }
+
+  .wizard-header-top-bar {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .wizard-header-top-bar .game-logo-badge {
+    font-size: 0.75rem !important;
+  }
+
+  .wizard-nav-pills {
+    display: flex !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    flex-wrap: nowrap !important;
+    gap: 6px !important;
+    padding-bottom: 4px !important;
+  }
+
+  .wizard-nav-pills::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .wizard-pill {
+    font-size: 0.65rem !important;
+    padding: 4px 10px !important;
+    white-space: nowrap !important;
+  }
+
+  .step-hero .hero-title {
+    font-size: 1.4rem !important;
+  }
+
+  .step-hero .hero-sub {
+    font-size: 0.8rem !important;
+  }
+
+  .form-row, .form-row-3 {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .geo-selection-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .geo-picker-card {
+    padding: 12px !important;
+  }
+
+  .dropdown-list-box {
+    max-height: 150px !important;
+  }
+
+  .wizard-slider {
+    height: 10px !important;
+  }
+
+  .range-labels {
+    font-size: 0.72rem !important;
+  }
+
+  .wizard-footer-actions {
+    flex-direction: column !important;
+    gap: 8px !important;
+  }
+
+  .btn-wizard-action {
+    width: 100% !important;
+    padding: 14px 16px !important;
+    font-size: 0.88rem !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  /* Step 2: Modalidades */
+  .modality-selector-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .modality-card-interactive {
+    padding: 12px 14px !important;
+  }
+
+  .style-archetype-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* Step 3: Genética / Lendas */
+  .legends-showcase-card {
+    padding: 16px !important;
+  }
+
+  .stolen-attributes-dock {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 6px !important;
+  }
+
+  .legend-attr-steal-row {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 6px !important;
+  }
+
+  .btn-steal-attr {
+    width: 100% !important;
+    padding: 10px !important;
+  }
+
+  /* Step 4: Histórias */
+  .origin-stories-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  /* ============================================================ */
+  /* 4. DASHBOARD DA CARREIRA MOBILE                              */
+  /* ============================================================ */
+  .carreira-layout-grid {
+    grid-template-columns: 1fr !important;
+    gap: 14px !important;
+  }
+
+  .fighter-profile-card {
+    padding: 16px !important;
+  }
+
+  .bio-meta-list {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+
+  .career-actions-row {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+
+  .btn-career-action {
+    padding: 14px 16px !important;
+    font-size: 0.92rem !important;
+  }
+
+  .career-skills-panel {
+    padding: 14px !important;
+  }
+
+  .core-skills-mini-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  /* ============================================================ */
+  /* 5. ARENA DE COMBATE MOBILE                                   */
+  /* ============================================================ */
+  .combat-top-status {
+    padding: 8px 12px !important;
+  }
+
+  .combat-timer {
+    font-size: 1.35rem !important;
+  }
+
+  .combat-phase-tag {
+    font-size: 0.7rem !important;
+    padding: 3px 8px !important;
+  }
+
+  .combat-situation-banner {
+    padding: 8px 12px !important;
+  }
+
+  .combat-situation-banner .situation-title {
+    font-size: 0.95rem !important;
+  }
+
+  .combat-situation-banner .situation-desc {
+    font-size: 0.75rem !important;
+  }
+
+  .combat-stage {
+    flex-direction: column !important;
+    min-height: auto !important;
+    padding: 12px 10px !important;
+    gap: 10px !important;
+  }
+
+  .combat-fighter-col {
+    padding: 10px !important;
+    width: 100% !important;
+  }
+
+  .combat-fighter-header h2 {
+    font-size: 0.98rem !important;
+  }
+
+  .combat-vs-center {
+    display: none !important; /* Oculta VS no mobile para economizar altura */
+  }
+
+  .combat-bottom-panel {
+    grid-template-columns: 1fr !important;
+  }
+
+  .combat-actions-dock {
+    padding: 12px !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .combat-buttons-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
+  }
+
+  .btn-combat {
+    padding: 10px 8px !important;
+  }
+
+  .btn-combat strong {
+    font-size: 0.78rem !important;
+    line-height: 1.2 !important;
+  }
+
+  .btn-combat small {
+    font-size: 0.65rem !important;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .combat-log-feed {
+    padding: 12px !important;
+    max-height: 140px !important;
+  }
+
+  .combat-log-list {
+    max-height: 110px !important;
+  }
+
+  .log-entry {
+    font-size: 0.75rem !important;
+    padding: 5px 8px !important;
+    margin-bottom: 4px !important;
+  }
+
+  /* Dead by Daylight Skill Check no Mobile */
+  .dbd-skill-check-container {
+    width: 90% !important;
+    max-width: 320px !important;
+    padding: 20px 14px !important;
+  }
+
+  #dbdSkillCheckCanvas {
+    width: 220px !important;
+    height: 220px !important;
+  }
+
+  .dbd-center-prompt {
+    font-size: 0.8rem !important;
+  }
+
+  .dbd-warning-banner {
+    font-size: 0.82rem !important;
+    padding: 6px 10px !important;
+  }
+
+  /* ============================================================ */
+  /* 6. OUTRAS TELAS: LUTAS, RANKINGS, ACADEMIA, ATRIBUTOS        */
+  /* ============================================================ */
+  .offers-grid, .gyms-grid, .sponsors-grid, .jobs-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+
+  .ranking-table-wrap {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .ranking-table {
+    font-size: 0.75rem !important;
+    min-width: 500px !important;
+  }
+
+  .card {
+    padding: 14px !important;
+    border-radius: 10px !important;
+  }
+
+  /* Modais Gerais em Tela Pequena */
+  .modal-box {
+    width: 94% !important;
+    max-width: 440px !important;
+    padding: 20px 16px !important;
+  }
+}
+
+/* ============================================================ */
+/* 7. DISPOSITIVOS MUITO PEQUENOS (max-width: 400px)            */
+/* ============================================================ */
+@media (max-width: 400px) {
+  .hud-metrics-row {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  
+  .combat-buttons-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .mobile-nav-item .nav-label {
+    font-size: 0.62rem !important;
+  }
+}

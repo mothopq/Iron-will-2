@@ -1,14 +1,53 @@
-// main.js - Inicializador principal da aplicação
+import { gameState } from './state.js';
+import { viewsManager } from './ui/viewsManager.js';
+import { themeManager } from './ui/themeManager.js';
+import { soundFX } from './audio.js';
 
-import { gameState } from './state.js?v=20260913_fix_v5';
-import { viewsManager } from './ui/viewsManager.js?v=20260913_fix_v5';
-import { themeManager } from './ui/themeManager.js?v=20260913_fix_v5';
-import { soundFX } from './audio.js?v=20260913_fix_v5';
 
 // Expõe no window imediatamente para depuração e interoperabilidade
 window.gameState = gameState;
 window.viewsManager = viewsManager;
 window.themeManager = themeManager;
+window.forceResetGame = () => {
+  try {
+    if (gameState && typeof gameState.resetGame === 'function') {
+      gameState.resetGame();
+    }
+    localStorage.clear();
+    sessionStorage.clear();
+  } catch(e){
+    console.warn('Erro ao limpar storage:', e);
+  }
+  try {
+    const mainApp = document.getElementById('mainAppContainer');
+    const creation = document.getElementById('creationScreen');
+    if (mainApp) mainApp.classList.add('hidden');
+    if (creation) {
+      creation.classList.remove('hidden');
+      creation.innerHTML = '';
+    }
+    if (viewsManager && typeof viewsManager.initCreationScreen === 'function') {
+      viewsManager.initCreationScreen();
+    }
+  } catch(e){}
+  setTimeout(() => {
+    try {
+      const cleanUrl = window.location.href.split('?')[0].split('#')[0];
+      window.location.replace(cleanUrl + '?reset=' + Date.now());
+    } catch(e) {
+      window.location.reload();
+    }
+  }, 50);
+};
+
+window.resetCareer = (showPrompt = true) => {
+  if (showPrompt && viewsManager && typeof viewsManager.promptResetCareer === 'function') {
+    viewsManager.promptResetCareer();
+  } else {
+    window.forceResetGame();
+  }
+};
+window.resetGame = window.resetCareer;
 
 function initApp() {
   console.log('[Iron Will] Iniciando motor do simulador...');

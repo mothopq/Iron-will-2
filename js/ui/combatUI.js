@@ -75,8 +75,9 @@ export class CombatUI {
     const oSubEl = document.getElementById('combatOpponentSub');
     if (oSubEl) {
       const oTier = this.engine.opponent.tierBadge ? `[${this.engine.opponent.tierBadge}] ` : '';
+      const oOrigin = this.engine.opponent.originDisplay ? ` • 📍 ${this.engine.opponent.originDisplay}` : (this.engine.opponent.nationality ? ` • 📍 ${this.engine.opponent.nationality}` : '');
       const oStrength = this.engine.opponent.strength ? ` • ${this.engine.opponent.strength}` : '';
-      oSubEl.textContent = `${oTier}${this.engine.opponent.style || 'Desafiante'} (${oModLabel})${oStrength}`;
+      oSubEl.textContent = `${oTier}${this.engine.opponent.style || 'Desafiante'} (${oModLabel})${oOrigin}${oStrength}`;
     }
 
     // Badges de Condição Física em Tempo Real (Sem Rostos/Personagens!)
@@ -571,7 +572,7 @@ export class CombatUI {
       actions.push({
         id: 'rest_in_clinch',
         label: '🤼 Travar no Clinch & Descansar',
-        desc: 'Apoiar peso morto no rival e respirar',
+        desc: 'Controlar a postura no clinch e respirar (+Fôlego)',
         cls: 'btn-clinch'
       });
       actions.push({
@@ -587,8 +588,8 @@ export class CombatUI {
     if (sitId === 'OPPONENT_LEGS_HURT' && mod.hasKicks) {
       actions.push({
         id: 'finish_leg_kick',
-        label: '🦵 Chute Baixo de Misericórdia',
-        desc: 'Canelada brutal para desabar a base machucada!',
+        label: '🦵 Chute Baixo Decisivo (Buscar TKO)',
+        desc: 'Canelada precisa para desgastar a base avariada e forçar o TKO!',
         cls: 'btn-kick btn-pulse'
       });
     }
